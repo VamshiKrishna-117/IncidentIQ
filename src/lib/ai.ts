@@ -1,9 +1,13 @@
 import Groq from "groq-sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { generateFallbackSummary, generateFallbackActions, generateFallbackPriority } from "./ai-fallback";
 import type { Incident, IncidentUpdate } from "@/types";
 
 const groqApiKey = process.env.GROQ_API_KEY;
 const groq = groqApiKey ? new Groq({ apiKey: groqApiKey }) : null;
+
+const geminiApiKey = process.env.GEMINI_API_KEY;
+const gemini = geminiApiKey ? new GoogleGenerativeAI(geminiApiKey) : null;
 
 function buildPrompt(incident: Incident, updates: IncidentUpdate[], type: string): string {
   const updateLog = updates
@@ -57,14 +61,42 @@ async function callGroq(prompt: string): Promise<string | null> {
       max_tokens: 1024,
     });
     return completion.choices[0]?.message?.content ?? null;
-  } catch {
+  } catch (err) {
+    console.warn("Groq API call failed:", (err as Error).message);
     return null;
   }
+}
+
+async function callGemini(prompt: string): Promise<string | null> {
+  if (!gemini) return null;
+  try {
+    const model = gemini.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  } catch (err) {
+    console.warn("Gemini API call failed:", (err as Error).message);
+    return null;
+  }
+}
+
+async function callAI(prompt: string): Promise<string | null> {
+  const groqResult = await callGroq(prompt);
+  if (groqResult) return groqResult;
+
+  const geminiResult = await callGemini(prompt);
+  if (geminiResult) return geminiResult;
+
+  return null;
 }
 
 function parseJSON<T>(text: string): T | null {
   try {
     const cleaned = text.replace(/```json\n?/gi, "").replace(/```\n?/g, "").trim();
+    const jsonStart = cleaned.indexOf("{");
+    const jsonEnd = cleaned.lastIndexOf("}");
+    if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+      return JSON.parse(cleaned.slice(jsonStart, jsonEnd + 1)) as T;
+    }
     return JSON.parse(cleaned) as T;
   } catch {
     return null;
@@ -92,7 +124,7 @@ export interface AIPriorityReview {
 
 export async function generateSummary(incident: Incident, updates: IncidentUpdate[]): Promise<AISummary> {
   const prompt = buildPrompt(incident, updates, "summary");
-  const response = await callGroq(prompt);
+  const response = await callAI(prompt);
 
   if (response) {
     const parsed = parseJSON<AISummary>(response);
@@ -104,7 +136,7 @@ export async function generateSummary(incident: Incident, updates: IncidentUpdat
 
 export async function generateNextActions(incident: Incident, updates: IncidentUpdate[]): Promise<AIAction[]> {
   const prompt = buildPrompt(incident, updates, "actions");
-  const response = await callGroq(prompt);
+  const response = await callAI(prompt);
 
   if (response) {
     const parsed = parseJSON<{ actions: AIAction[] }>(response);
@@ -116,7 +148,7 @@ export async function generateNextActions(incident: Incident, updates: IncidentU
 
 export async function reviewPriority(incident: Incident): Promise<AIPriorityReview> {
   const prompt = buildPrompt(incident, [], "priority");
-  const response = await callGroq(prompt);
+  const response = await callAI(prompt);
 
   if (response) {
     const parsed = parseJSON<AIPriorityReview>(response);
