@@ -11,7 +11,7 @@ import { IncidentHeader } from "@/components/incident-detail/incident-header";
 import { Timeline } from "@/components/incident-detail/timeline";
 import { UpdateComposer } from "@/components/incident-detail/update-composer";
 import { AISummaryPanel } from "@/components/incident-detail/ai-summary-panel";
-import { LoadingPage } from "@/components/shared/loading-state";
+import { LoadingDetail } from "@/components/shared/loading-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -41,7 +41,7 @@ export default function IncidentDetailPage() {
     enabled: !!id,
   });
 
-  if (isLoading) return <LoadingPage />;
+  if (isLoading) return <LoadingDetail />;
   if (error) {
     return (
       <ErrorState

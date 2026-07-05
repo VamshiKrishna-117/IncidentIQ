@@ -89,4 +89,13 @@
   ::-webkit-scrollbar-thumb:hover {
     background: var(--color-outline);
   }
+  *:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@utility safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }

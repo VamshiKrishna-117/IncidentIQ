@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoadingPage } from "@/components/shared/loading-state";
 import { ErrorState } from "@/components/shared/error-state";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Brain, Sparkles } from "lucide-react";
 import { useState } from "react";
 import type { Incident, AIResult } from "@/types";
@@ -89,12 +90,11 @@ export default function AIAssistantPage() {
               />
             ))
           ) : (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <Brain className="mx-auto mb-3 h-8 w-8 text-on-surface-variant" />
-                <p className="text-sm text-on-surface-variant">No incidents yet. Create an incident to see AI analysis.</p>
-              </CardContent>
-            </Card>
+          <EmptyState
+            icon={Brain}
+            title="No Incidents Yet"
+            description="Create an incident to see AI-powered analysis and recommendations."
+          />
           )}
         </div>
 
