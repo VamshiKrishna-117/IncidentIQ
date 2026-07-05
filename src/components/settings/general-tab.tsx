@@ -1,6 +1,7 @@
 "use client";
 
 import { Select, SelectItem } from "@/components/ui/select";
+import { useTheme } from "@/components/theme-provider";
 import type { SettingsMap } from "@/hooks/use-settings";
 
 interface GeneralTabProps {
@@ -9,15 +10,22 @@ interface GeneralTabProps {
 }
 
 export function GeneralTab({ settings, onChange }: GeneralTabProps) {
+  const { theme, setTheme } = useTheme();
+
+  const handleThemeChange = (v: string) => {
+    setTheme(v as "dark" | "light" | "system");
+    onChange("theme", v);
+  };
+
   return (
     <div className="space-y-5">
       <div>
         <p className="mb-1 text-sm font-medium text-on-surface">Theme Mode</p>
         <p className="mb-2 text-xs text-on-surface-variant">Select interface appearance.</p>
-        <Select value={settings.theme as string} onValueChange={(v) => onChange("theme", v)}>
+        <Select value={theme} onValueChange={handleThemeChange}>
           <SelectItem value="dark">Dark (Professional)</SelectItem>
           <SelectItem value="system">System Default</SelectItem>
-          <SelectItem value="light">Light (Not Recommended)</SelectItem>
+          <SelectItem value="light">Light</SelectItem>
         </Select>
       </div>
 

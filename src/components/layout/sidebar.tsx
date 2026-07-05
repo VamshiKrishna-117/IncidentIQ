@@ -11,9 +11,12 @@ import {
   Settings,
   LifeBuoy,
   Shield,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/ui-store";
+import { useTheme } from "@/components/theme-provider";
 
 const navItems = [
   { href: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -32,6 +35,7 @@ interface SidebarProps {
 export function Sidebar({ open }: SidebarProps) {
   const pathname = usePathname();
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
+  const { resolved, setTheme } = useTheme();
 
   return (
     <>
@@ -104,6 +108,20 @@ export function Sidebar({ open }: SidebarProps) {
             );
           })}
         </nav>
+
+        <div className="border-t border-border px-3 py-3">
+          <button
+            onClick={() => setTheme(resolved === "dark" ? "light" : "dark")}
+            className={cn(
+              "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors",
+              !open && "lg:hidden"
+            )}
+            aria-label="Toggle theme"
+          >
+            {resolved === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            <span>{resolved === "dark" ? "Light Mode" : "Dark Mode"}</span>
+          </button>
+        </div>
       </aside>
     </>
   );
