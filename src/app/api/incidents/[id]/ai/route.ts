@@ -1,0 +1,89 @@
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("ai_results")
+      .select("*")
+      .eq("incident_id", id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ data });
+  } catch {
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+export async function POST(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const supabase = await createClient();
+
+    const { data: incident } = await supabase
+      .from("incidents")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (!incident) {
+      return NextResponse.json({ error: "Incident not found" }, { status: 404 });
+    }
+
+    const { data: updates } = await supabase
+      .from("incident_updates")
+      .select("*")
+      .eq("incident_id", id)
+      .order("created_at", { ascending: true });
+
+    const { generateSummary, generateNextActions, reviewPriority } = await import("@/lib/ai");
+
+    const [summary, actions, priorityReview] = await Promise.all([
+      generateSummary(incident, updates ?? []),
+      generateNextActions(incident, updates ?? []),
+      reviewPriority(incident),
+    ]);
+
+    const results = [];
+
+    const { data: summaryResult, error: summaryErr } = await supabase
+      .from("ai_results")
+      .insert({
+        incident_id: id,
+        type: "SUMMARY",
+        result_text: summary.root_cause,
+        confidence: summary.confidence,
+        metadata: {
+          root_cause: summary.root_cause,
+          blast_radius: summary.blast_radius,
+          recommended_action: summary.recommended_action,
+          affected_services: summary.affected_services,
+          actions,
+          priority_review: priorityReview,
+        },
+      })
+      .select()
+      .single();
+
+    if (!summaryErr) results.push(summaryResult);
+
+    return NextResponse.json({ data: { summary, actions, priorityReview, result: summaryResult } });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "AI generation failed" },
+      { status: 500 }
+    );
+  }
+}

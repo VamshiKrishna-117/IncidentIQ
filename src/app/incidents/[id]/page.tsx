@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import {
   useIncident,
   useIncidentUpdates,
@@ -9,11 +10,16 @@ import { useRealtimeIncidentUpdates } from "@/hooks/use-supabase-realtime";
 import { IncidentHeader } from "@/components/incident-detail/incident-header";
 import { Timeline } from "@/components/incident-detail/timeline";
 import { UpdateComposer } from "@/components/incident-detail/update-composer";
+import { AISummaryPanel } from "@/components/incident-detail/ai-summary-panel";
 import { LoadingPage } from "@/components/shared/loading-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Terminal, Shield, Activity } from "lucide-react";
+import { Terminal, Shield, Activity } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import type { AIResult } from "@/types";
+
+const supabase = createClient();
 
 export default function IncidentDetailPage() {
   const params = useParams();
@@ -21,6 +27,19 @@ export default function IncidentDetailPage() {
   const { data: incident, isLoading, error, refetch } = useIncident(id);
   const { data: updates, isLoading: updatesLoading } = useIncidentUpdates(id);
   useRealtimeIncidentUpdates(id);
+
+  const { data: aiResults = [] } = useQuery({
+    queryKey: ["ai-results", id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("ai_results")
+        .select("*")
+        .eq("incident_id", id)
+        .order("created_at", { ascending: false });
+      return (data ?? []) as AIResult[];
+    },
+    enabled: !!id,
+  });
 
   if (isLoading) return <LoadingPage />;
   if (error) {
@@ -75,29 +94,11 @@ export default function IncidentDetailPage() {
         </div>
 
         <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Brain className="h-4 w-4 text-green-400" />
-                <CardTitle>AI Summary</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <p className="text-xs font-medium text-on-surface-variant">Root Cause Analysis</p>
-                <p className="text-sm text-on-surface">
-                  AI analysis will appear here once generated. Click "Generate AI Summary" to analyze this incident.
-                </p>
-                <div className="flex items-center gap-3 rounded-lg bg-surface-container-higher p-3">
-                  <Shield className="h-4 w-4 text-green-400" />
-                  <div>
-                    <p className="text-xs font-medium text-on-surface">Recommended Action</p>
-                    <p className="font-mono text-xs text-green-400">Awaiting analysis...</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <AISummaryPanel
+            incident={incident}
+            existingResults={aiResults}
+            updates={updates ?? []}
+          />
 
           <Card>
             <CardHeader>
