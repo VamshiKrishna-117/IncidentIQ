@@ -82,7 +82,7 @@ INSERT INTO incidents (display_id, title, description, priority, status, reporte
     'INC-0008',
     'UI Dashboard Latency',
     'Dashboard page load time increased by 40%. Likely due to unoptimized analytics queries.',
-    'P4',
+    'P3',
     'RESOLVED',
     'Analyst',
     NULL,
