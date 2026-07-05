@@ -4,6 +4,8 @@ import { useUIStore } from "@/stores/ui-store";
 import { Sidebar } from "./sidebar";
 import { Header } from "./header";
 import { MobileNav } from "./mobile-nav";
+import { CommandPalette } from "@/components/shared/command-palette";
+import { TelemetryLost } from "@/components/shared/telemetry-lost";
 import { cn } from "@/lib/utils";
 
 interface AppShellProps {
@@ -26,6 +28,8 @@ export function AppShell({ children }: AppShellProps) {
         <main className="flex-1 overflow-auto pb-16 lg:pb-0">{children}</main>
       </div>
       <MobileNav />
+      <CommandPalette />
+      <TelemetryLost />
     </div>
   );
 }

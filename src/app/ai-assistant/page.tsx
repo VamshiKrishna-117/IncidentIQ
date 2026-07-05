@@ -1,38 +1,106 @@
 "use client";
 
-import { Brain, Sparkles } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { createClient } from "@/lib/supabase/client";
+import { AIAnalysisCard } from "@/components/ai/ai-analysis-card";
+import { AIHistoryTimeline } from "@/components/ai/ai-history-timeline";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { LoadingPage } from "@/components/shared/loading-state";
+import { ErrorState } from "@/components/shared/error-state";
+import { Brain, Sparkles } from "lucide-react";
+import { useState } from "react";
+import type { Incident, AIResult } from "@/types";
+
+const supabase = createClient();
 
 export default function AIAssistantPage() {
+  const [generatingId, setGeneratingId] = useState<string | null>(null);
+
+  const { data: incidents, isLoading, error, refetch } = useQuery({
+    queryKey: ["ai-incidents"],
+    queryFn: async () => {
+      const { data } = await supabase.from("incidents").select("*").order("created_at", { ascending: false });
+      return (data ?? []) as Incident[];
+    },
+  });
+
+  const { data: aiResults, refetch: refetchAI } = useQuery({
+    queryKey: ["ai-all-results"],
+    queryFn: async () => {
+      const { data } = await supabase.from("ai_results").select("*").order("created_at", { ascending: false });
+      return (data ?? []) as AIResult[];
+    },
+  });
+
+  const handleGenerate = async (incidentId: string) => {
+    setGeneratingId(incidentId);
+    try {
+      await fetch(`/api/incidents/${incidentId}/ai`, { method: "POST" });
+      refetchAI();
+    } catch {
+      // handled by API
+    } finally {
+      setGeneratingId(null);
+    }
+  };
+
+  const getResult = (incidentId: string) => aiResults?.find((r) => r.incident_id === incidentId && r.type === "SUMMARY");
+
+  if (isLoading) return <LoadingPage />;
+  if (error) {
+    return (
+      <div className="p-4 md:p-6">
+        <ErrorState type="error" title="Failed to load" description="Unable to connect to the backend." action={{ label: "Retry", onClick: () => refetch() }} />
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 md:p-6">
       <div className="mb-6">
-        <div className="mb-1 flex items-center gap-2">
-          <Brain className="h-5 w-5 text-green-400" />
-          <h1 className="text-lg font-semibold text-on-surface">Nexus AI Analysis</h1>
-        </div>
-        <p className="text-sm text-on-surface-variant">
-          Real-time incident intelligence and mitigation strategy generation.
-        </p>
-      </div>
-
-      <div className="mb-4">
-        <Button variant="secondary" disabled>
-          <Sparkles className="h-4 w-4" />
-          Generate Latest Summary
-        </Button>
-      </div>
-
-      <div className="space-y-4">
-        <Card>
-          <CardContent className="py-8 text-center">
-            <Brain className="mx-auto mb-3 h-8 w-8 text-on-surface-variant" />
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="mb-1 flex items-center gap-2">
+              <Brain className="h-5 w-5 text-green-400" />
+              <h1 className="text-lg font-semibold text-on-surface">Nexus AI Analysis</h1>
+            </div>
             <p className="text-sm text-on-surface-variant">
-              AI analysis will be available after incidents are created.
+              Real-time incident intelligence and mitigation strategy generation.
             </p>
-          </CardContent>
-        </Card>
+          </div>
+          <Button variant="secondary" size="sm" onClick={() => refetchAI()}>
+            <Sparkles className="h-4 w-4" />
+            Refresh Results
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
+          {incidents && incidents.length > 0 ? (
+            incidents.map((incident) => (
+              <AIAnalysisCard
+                key={incident.id}
+                incident={incident}
+                result={getResult(incident.id)}
+                onGenerate={() => handleGenerate(incident.id)}
+                generating={generatingId === incident.id}
+              />
+            ))
+          ) : (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <Brain className="mx-auto mb-3 h-8 w-8 text-on-surface-variant" />
+                <p className="text-sm text-on-surface-variant">No incidents yet. Create an incident to see AI analysis.</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        <div>
+          <AIHistoryTimeline />
+        </div>
       </div>
     </div>
   );
