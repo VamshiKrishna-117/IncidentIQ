@@ -5,6 +5,7 @@ import { Terminal, AlertTriangle, UserCheck, Cpu } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { formatTimestamp } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
 function getClient() {
   return createClient();
@@ -60,7 +61,7 @@ export function LiveFeed() {
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "incident_updates" },
-        (payload) => {
+        (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
           const update = payload.new as { message: string; author_name: string; created_at: string };
           setEvents((prev) => [
             {
@@ -76,7 +77,7 @@ export function LiveFeed() {
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "incidents" },
-        (payload) => {
+        (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
           const incident = payload.new as { display_id: string; title: string; created_at: string };
           setEvents((prev) => [
             {
