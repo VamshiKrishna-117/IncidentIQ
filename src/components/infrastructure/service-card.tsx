@@ -95,7 +95,7 @@ export function ServiceCard({
           <RefreshCw className="h-3 w-3" />
           HEARTBEAT: {heartbeatAt}
         </div>
-        <button className="rounded p-1 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors">
+        <button onClick={() => {}} className="rounded p-1 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors cursor-pointer" aria-label="Open terminal">
           <Terminal className="h-3.5 w-3.5" />
         </button>
       </div>

@@ -1,11 +1,7 @@
 "use client";
 
 import type { Incident } from "@/types";
-import { StatusBadge } from "@/components/incidents/status-badge";
-import { PriorityBadge } from "@/components/incidents/priority-badge";
-import { formatTimestamp } from "@/lib/utils";
-import { AlertTriangle, Filter } from "lucide-react";
-import Link from "next/link";
+import { CircleAlert, AlertTriangle, Info, Filter } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { LoadingTable } from "@/components/shared/loading-state";
 
@@ -14,75 +10,77 @@ interface TriageQueueProps {
   loading: boolean;
 }
 
+const sevIcons: Record<string, { icon: typeof CircleAlert; color: string; bg: string; border: string }> = {
+  P0: { icon: CircleAlert, color: "text-error", bg: "bg-error/10", border: "border-l-error" },
+  P1: { icon: AlertTriangle, color: "text-[#FACC15]", bg: "bg-[#FACC15]/10", border: "border-l-[#FACC15]" },
+  P2: { icon: Info, color: "text-[#60A5FA]", bg: "bg-[#60A5FA]/10", border: "border-l-[#60A5FA]" },
+  P3: { icon: Info, color: "text-[#60A5FA]", bg: "bg-[#60A5FA]/10", border: "border-l-[#60A5FA]" },
+};
+
+const sevLabel: Record<string, string> = {
+  P0: "SEV-1", P1: "SEV-2", P2: "SEV-3", P3: "SEV-4",
+};
+
+function formatTimeAgo(date: string): string {
+  const diff = Date.now() - new Date(date).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  return `${hrs}h ago`;
+}
+
 export function TriageQueue({ incidents, loading }: TriageQueueProps) {
   if (loading) return <LoadingTable rows={4} />;
-
   if (!incidents || incidents.length === 0) {
     return (
       <EmptyState
-        icon={AlertTriangle}
+        icon={CircleAlert}
         title="No Active Incidents"
-        description="Systems are healthy. AI monitoring is active and analyzing telemetry data across all infrastructure nodes."
+        description="Systems are healthy. AI monitoring is active across all infrastructure nodes."
       />
     );
   }
 
+  const visible = incidents.slice(0, 4);
+
   return (
-    <div>
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-on-surface">Live Triage Queue</h2>
-        <button className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs text-on-surface-variant hover:bg-white/5 transition-colors">
+    <div className="flex flex-col gap-2">
+      <div className="flex justify-between items-center bg-surface-container-highest/30 px-3 py-1.5 rounded-lg border border-[#1F1F1F]">
+        <h3 className="text-sm font-semibold text-on-surface">Live Triage Queue</h3>
+        <button className="text-on-surface-variant hover:text-primary transition-colors text-xs flex items-center gap-1">
           <Filter className="h-3.5 w-3.5" />
           Filter
         </button>
       </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-border text-xs text-on-surface-variant">
-              <th className="px-3 py-2 text-left font-medium">Incident</th>
-              <th className="px-3 py-2 text-left font-medium">Status</th>
-              <th className="px-3 py-2 text-left font-medium">Priority</th>
-              <th className="px-3 py-2 text-left font-medium">Reporter</th>
-              <th className="px-3 py-2 text-left font-medium">Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {incidents.map((incident) => (
-              <tr
-                key={incident.id}
-                className="border-b border-border transition-colors hover:bg-white/[0.02]"
-              >
-                <td className="px-3 py-2.5">
-                  <Link
-                    href={`/incidents/${incident.id}`}
-                    className="text-sm font-medium text-on-surface hover:text-primary transition-colors"
-                  >
-                    {incident.display_id}: {incident.title}
-                  </Link>
+      <div className="flex flex-col gap-px">
+        {visible.map((incident) => {
+          const sev = sevIcons[incident.priority] || sevIcons.P3;
+          const SevIcon = sev.icon;
+          return (
+            <div
+              key={incident.id}
+              className={`flex gap-2.5 items-start bg-black/70 backdrop-blur-xl border border-[#1F1F1F] rounded-lg p-2.5 ${sev.border} border-l-4 hover:bg-surface-container-high/50 transition-colors cursor-pointer group`}
+            >
+              <div className={`${sev.bg} p-1.5 rounded shrink-0`}>
+                <SevIcon className={`h-4 w-4 ${sev.color}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-start gap-2">
+                  <h4 className="text-sm text-on-surface font-medium group-hover:underline truncate">{incident.title}</h4>
+                  <span className="text-[10px] text-on-surface-variant shrink-0">{formatTimeAgo(incident.created_at)}</span>
+                </div>
+                <p className="text-xs text-on-surface-variant mt-0.5 line-clamp-1">{incident.description}</p>
+                <div className="flex gap-1.5 mt-1.5 flex-wrap">
+                  <span className="text-[10px] font-medium bg-error/10 text-error px-1.5 py-0.5 rounded border border-error/20">{sevLabel[incident.priority]}</span>
                   {incident.service_affected && (
-                    <p className="text-xs text-on-surface-variant">
-                      {incident.service_affected}
-                    </p>
+                    <span className="text-[10px] font-medium bg-surface-variant text-on-surface px-1.5 py-0.5 rounded border border-outline-variant">{incident.service_affected}</span>
                   )}
-                </td>
-                <td className="px-3 py-2.5">
-                  <StatusBadge status={incident.status} />
-                </td>
-                <td className="px-3 py-2.5">
-                  <PriorityBadge priority={incident.priority} />
-                </td>
-                <td className="px-3 py-2.5 text-sm text-on-surface-variant">
-                  @{incident.reporter_name.toLowerCase().replace(/\s+/g, "")}
-                </td>
-                <td className="px-3 py-2.5 text-xs text-on-surface-variant whitespace-nowrap">
-                  {formatTimestamp(incident.created_at)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

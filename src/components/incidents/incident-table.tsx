@@ -7,12 +7,14 @@ import { StatusBadge } from "./status-badge";
 import { PriorityBadge } from "./priority-badge";
 import { formatTimestamp } from "@/lib/utils";
 import { Search, Filter, AlertTriangle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { EmptyState } from "@/components/shared/empty-state";
 import { LoadingTable } from "@/components/shared/loading-state";
 import type { Incident } from "@/types";
 
 export function IncidentTable() {
+  const toast = useToast();
   const { data: incidents, isLoading, error } = useIncidents();
   useRealtimeIncidents();
   const [search, setSearch] = useState("");
@@ -66,7 +68,7 @@ export function IncidentTable() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <button className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-on-surface-variant hover:bg-white/5 transition-colors">
+        <button onClick={() => toast.info("Filter panel coming soon")} className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs text-on-surface-variant hover:bg-white/5 transition-colors cursor-pointer">
           <Filter className="h-3.5 w-3.5" />
           Filter
         </button>

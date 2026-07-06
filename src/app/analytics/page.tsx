@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { KPIMetric } from "@/components/analytics/kpi-metric";
@@ -30,6 +31,7 @@ export default function AnalyticsPage() {
       return data ?? [];
     },
   });
+  const [timeRange, setTimeRange] = useState("30d");
 
   if (isLoading) return <LoadingPage />;
   if (error) {
@@ -87,8 +89,9 @@ export default function AnalyticsPage() {
         {["24h", "7d", "30d"].map((range) => (
           <button
             key={range}
-            className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${
-              range === "30d"
+            onClick={() => setTimeRange(range)}
+            className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors cursor-pointer ${
+              timeRange === range
                 ? "bg-primary text-on-primary"
                 : "border border-border text-on-surface-variant hover:bg-white/5"
             }`}

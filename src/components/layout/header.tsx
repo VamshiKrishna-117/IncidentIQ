@@ -3,10 +3,13 @@
 import { Menu, Bell, HelpCircle, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUIStore } from "@/stores/ui-store";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 export function Header() {
   const { toggleSidebar, setCreateIncidentOpen } = useUIStore();
+  const router = useRouter();
+  const toast = useToast();
   const pathname = usePathname();
 
   const pageTitles: Record<string, string> = {
@@ -55,12 +58,12 @@ export function Header() {
           <span className="hidden sm:inline">Create Incident</span>
         </Button>
 
-        <button className="relative rounded-lg p-1.5 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors" aria-label="Notifications">
+        <button onClick={() => toast.info("No new notifications")} className="relative rounded-lg p-1.5 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors cursor-pointer" aria-label="Notifications">
           <Bell className="h-5 w-5" />
           <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-error" aria-hidden="true" />
         </button>
 
-        <button className="rounded-lg p-1.5 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors" aria-label="Help">
+        <button onClick={() => router.push("/support")} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors cursor-pointer" aria-label="Help">
           <HelpCircle className="h-5 w-5" />
         </button>
       </div>

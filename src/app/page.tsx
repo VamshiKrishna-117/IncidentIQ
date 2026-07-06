@@ -5,15 +5,12 @@ import { useRealtimeIncidents } from "@/hooks/use-supabase-realtime";
 import { KPICard } from "@/components/dashboard/kpi-card";
 import { TriageQueue } from "@/components/dashboard/triage-queue";
 import { LiveFeed } from "@/components/dashboard/live-feed";
+
+import { Button } from "@/components/ui/button";
 import { LoadingPage } from "@/components/shared/loading-state";
 import { ErrorState } from "@/components/shared/error-state";
-import {
-  AlertTriangle,
-  Activity,
-  CheckCircle,
-  Database,
-} from "lucide-react";
-import { useState } from "react";
+import { Download } from "lucide-react";
+import { exportDashboardCSV } from "@/lib/export-csv";
 
 export default function DashboardPage() {
   const { data: incidents, isLoading, error, refetch } = useIncidents();
@@ -22,59 +19,92 @@ export default function DashboardPage() {
   if (isLoading) return <LoadingPage />;
   if (error) {
     return (
-      <ErrorState
-        type="error"
-        title="Failed to load incidents"
-        description="Unable to connect to the backend. Please try again."
-        action={{ label: "Retry", onClick: () => refetch() }}
-      />
+      <div className="p-4 md:p-6">
+        <ErrorState
+          type="error"
+          title="Failed to load dashboard"
+          description="Unable to connect to the backend."
+          action={{ label: "Retry", onClick: () => refetch() }}
+        />
+      </div>
     );
   }
 
-  const activeIncidents = incidents?.filter((i) => i.status !== "RESOLVED") ?? [];
-  const investigating = incidents?.filter((i) => i.status === "INVESTIGATING") ?? [];
-  const resolvedToday = incidents?.filter((i) => i.status === "RESOLVED") ?? [];
-  const critical = incidents?.filter((i) => i.priority === "P0") ?? [];
+  const activeCount = incidents?.filter((i) => i.status !== "RESOLVED").length ?? 0;
 
   return (
-    <div className="p-4 md:p-6">
-      <div className="mb-4 flex items-center gap-2 text-xs text-on-surface-variant">
-        <span className="font-medium text-green-400">Prod Cluster Active</span>
-        <span>|</span>
-        <span>Last updated: Just now</span>
-      </div>
-
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KPICard
-          icon={AlertTriangle}
-          label="Active Incidents"
-          value={String(activeIncidents.length)}
-          trend={{ value: "3", direction: "up" }}
-        />
-        <KPICard
-          icon={Activity}
-          label="Investigating"
-          value={String(investigating.length)}
-        />
-        <KPICard
-          icon={CheckCircle}
-          label="Resolved (24h)"
-          value={String(resolvedToday.length)}
-        />
-        <KPICard
-          icon={Database}
-          label="Critical Today"
-          value={String(critical.length)}
-          trend={{ value: "1", direction: "up" }}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <TriageQueue incidents={incidents} loading={isLoading} />
+    <div className="p-4">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-semibold tracking-tight text-on-surface">Operations Overview</h2>
+          <p className="mt-0.5 text-xs text-on-surface-variant">Real-time system telemetry and incident triaging.</p>
         </div>
-        <div className="space-y-6">
-          <LiveFeed />
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 text-[10px] text-on-surface-variant">
+            <span className="flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-error animate-pulse" />
+              Prod Cluster Active
+            </span>
+            <span className="mx-2 opacity-30">|</span>
+            <span>Last updated: Just now</span>
+          </div>
+          <Button variant="secondary" size="sm" onClick={() =>
+            exportDashboardCSV(
+              incidents ?? [],
+              [
+                { label: "Active Incidents", value: String(activeCount) },
+                { label: "Avg Latency (Global)", value: "42ms" },
+                { label: "System Uptime", value: "99.99%" },
+                { label: "Log Ingestion Rate", value: "1.2M/min" },
+              ]
+            )
+          }>
+            <Download className="h-4 w-4" />
+            Export Report
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-12 gap-3">
+        <div className="col-span-12 grid grid-cols-4 gap-3">
+          <KPICard
+            icon="CircleAlert"
+            label="Active Incidents"
+            value={String(activeCount)}
+            trend={{ value: `+${Math.max(0, activeCount - 2)}`, direction: "up" }}
+            trendColor="error"
+            glow
+          />
+          <KPICard
+            icon="Gauge"
+            label="Avg Latency (Global)"
+            value="42"
+            unit="ms"
+            trend={{ value: "2ms", direction: "down" }}
+            trendColor="success"
+          />
+          <KPICard
+            icon="CheckCircle"
+            label="System Uptime"
+            value="99.99"
+            unit="%"
+          />
+          <KPICard
+            icon="Activity"
+            label="Log Ingestion Rate"
+            value="1.2M"
+            sublabel="/ min"
+            progress={65}
+          />
+        </div>
+
+        <div className="col-span-12 grid grid-cols-12 gap-3">
+          <div className="col-span-8">
+            <TriageQueue incidents={incidents} loading={isLoading} />
+          </div>
+          <div className="col-span-4">
+            <LiveFeed />
+          </div>
         </div>
       </div>
     </div>

@@ -32,7 +32,7 @@ export function AIAnalysisCard({ incident, result, onGenerate, generating }: AIA
             <button
               onClick={onGenerate}
               disabled={generating}
-              className="flex items-center gap-1 rounded-lg bg-green-500/10 px-2.5 py-1.5 text-xs font-medium text-green-400 hover:bg-green-500/20 transition-colors disabled:opacity-50"
+              className="flex items-center gap-1 rounded-lg bg-green-500/10 px-2.5 py-1.5 text-xs font-medium text-green-400 hover:bg-green-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Brain className="h-3.5 w-3.5" />
               {generating ? "Analyzing..." : "Analyze"}

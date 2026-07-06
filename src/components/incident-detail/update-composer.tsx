@@ -39,17 +39,17 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
   return (
     <div className="rounded-lg border border-border bg-surface-container-low">
       <div className="flex items-center gap-1 border-b border-border px-3 py-1.5">
-        <button className="rounded p-1 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors">
+        <button onClick={() => toast.info("Code block insertion coming soon")} className="rounded p-1 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors cursor-pointer" aria-label="Insert code block">
           <Terminal className="h-4 w-4" />
         </button>
-        <button className="rounded p-1 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors">
+        <button onClick={() => toast.info("Image upload coming soon")} className="rounded p-1 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors cursor-pointer" aria-label="Upload image">
           <Image className="h-4 w-4" />
         </button>
-        <button className="rounded p-1 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors">
+        <button onClick={() => toast.info("File attachment coming soon")} className="rounded p-1 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors cursor-pointer" aria-label="Attach file">
           <Paperclip className="h-4 w-4" />
         </button>
         <span className="mx-1 h-4 w-px bg-border" />
-        <button className="rounded p-1 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors">
+        <button onClick={() => toast.info("User mention coming soon")} className="rounded p-1 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors cursor-pointer" aria-label="Mention user">
           <AtSign className="h-4 w-4" />
         </button>
       </div>
@@ -64,7 +64,7 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
       />
 
       <div className="flex items-center justify-between border-t border-border px-3 py-2">
-        <button className="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-on-surface-variant hover:bg-white/5 transition-colors">
+        <button onClick={() => toast.info("Channel notification coming soon")} className="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-on-surface-variant hover:bg-white/5 transition-colors cursor-pointer">
           <AtSign className="h-3.5 w-3.5" />
           Notify Channel
         </button>

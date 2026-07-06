@@ -5,7 +5,7 @@ import { Sidebar } from "./sidebar";
 import { Header } from "./header";
 import { MobileNav } from "./mobile-nav";
 import { CommandPalette } from "@/components/shared/command-palette";
-import { TelemetryLost } from "@/components/shared/telemetry-lost";
+import { RealtimeBanner } from "@/components/shared/realtime-banner";
 import { cn } from "@/lib/utils";
 
 interface AppShellProps {
@@ -25,11 +25,11 @@ export function AppShell({ children }: AppShellProps) {
         )}
       >
         <Header />
+        <RealtimeBanner />
         <main className="flex-1 overflow-auto pb-16 lg:pb-0">{children}</main>
       </div>
       <MobileNav />
       <CommandPalette />
-      <TelemetryLost />
     </div>
   );
 }

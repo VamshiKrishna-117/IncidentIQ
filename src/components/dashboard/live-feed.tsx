@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Terminal, AlertTriangle, UserCheck, Cpu } from "lucide-react";
+import { Terminal, AlertTriangle, User } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { formatTimestamp } from "@/lib/utils";
-import { cn } from "@/lib/utils";
 import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
 function getClient() {
@@ -13,7 +11,8 @@ function getClient() {
 
 interface FeedEvent {
   id: string;
-  type: "deploy" | "alert" | "user" | "system";
+  type: "deploy" | "alert" | "user";
+  title: string;
   message: string;
   timestamp: string;
 }
@@ -21,35 +20,57 @@ interface FeedEvent {
 const iconMap = {
   deploy: Terminal,
   alert: AlertTriangle,
-  user: UserCheck,
-  system: Cpu,
+  user: User,
 };
 
-const colorMap = {
-  deploy: "text-blue-400",
-  alert: "text-yellow-400",
-  user: "text-green-400",
-  system: "text-purple-400",
+const iconStyles: Record<string, string> = {
+  deploy: "bg-surface border border-[#353434]",
+  alert: "bg-error/10 border border-error/20",
+  user: "bg-surface border border-[#353434]",
 };
+
+const iconColors: Record<string, string> = {
+  deploy: "text-on-surface-variant",
+  alert: "text-error",
+  user: "text-on-surface-variant",
+};
+
+const titleColors: Record<string, string> = {
+  deploy: "text-primary",
+  alert: "text-error",
+  user: "text-primary",
+};
+
+function formatTime(date: string): string {
+  return new Date(date).toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+}
 
 export function LiveFeed() {
   const [events, setEvents] = useState<FeedEvent[]>([
     {
       id: "1",
       type: "deploy",
-      message: "Deploy #892 completed — service-auth updated to v1.4.2",
+      title: "Deploy #892 completed",
+      message: "service-auth updated to v1.4.2",
       timestamp: new Date(Date.now() - 120000).toISOString(),
     },
     {
       id: "2",
       type: "alert",
-      message: "Alert Triggered — CPU utilization > 90% on redis-cluster-node-03",
+      title: "Alert Triggered",
+      message: "CPU utilization > 90% on redis-cluster-node-03.",
       timestamp: new Date(Date.now() - 300000).toISOString(),
     },
     {
       id: "3",
       type: "user",
-      message: "J. Doe acknowledged alert — INC-2049 assigned",
+      title: "J. Doe acknowledged alert",
+      message: "INC-2049 assigned.",
       timestamp: new Date(Date.now() - 600000).toISOString(),
     },
   ]);
@@ -67,7 +88,8 @@ export function LiveFeed() {
             {
               id: `update-${Date.now()}`,
               type: "user",
-              message: `${update.author_name}: ${update.message}`,
+              title: `${update.author_name} acknowledged alert`,
+              message: update.message,
               timestamp: update.created_at,
             },
             ...prev.slice(0, 19),
@@ -83,7 +105,8 @@ export function LiveFeed() {
             {
               id: `incident-${Date.now()}`,
               type: "alert",
-              message: `New incident ${incident.display_id}: ${incident.title}`,
+              title: `New incident ${incident.display_id}`,
+              message: incident.title,
               timestamp: incident.created_at,
             },
             ...prev.slice(0, 19),
@@ -98,24 +121,30 @@ export function LiveFeed() {
   }, []);
 
   return (
-    <div>
-      <h2 className="mb-3 text-sm font-semibold text-on-surface">Live Feed</h2>
-      <div className="space-y-2">
-        {events.map((event) => {
-          const Icon = iconMap[event.type];
-          return (
-            <div
-              key={event.id}
-              className="flex items-start gap-3 rounded-lg border border-border bg-surface-container-low px-3 py-2"
-            >
-              <Icon className={cn("mt-0.5 h-4 w-4 shrink-0", colorMap[event.type])} />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm text-on-surface">{event.message}</p>
-                <p className="text-xs text-on-surface-variant">{formatTimestamp(event.timestamp)}</p>
+    <div className="rounded-xl bg-black/70 backdrop-blur-xl border border-[#1F1F1F] p-3 flex flex-col">
+      <h3 className="text-sm font-semibold text-on-surface mb-2 flex items-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#4ADE80] animate-pulse" />
+        Live Feed
+      </h3>
+      <div className="relative">
+        <div className="absolute left-[11px] top-2 bottom-0 w-px bg-[#2A2A2A]" />
+        <div className="flex flex-col gap-2 relative z-10 pl-8 pt-1 overflow-y-auto max-h-[200px] pr-1">
+          {events.map((event) => {
+            const Icon = iconMap[event.type];
+            return (
+              <div key={event.id} className="relative">
+                <div className={`absolute -left-[37px] top-0.5 w-5 h-5 rounded-full flex items-center justify-center ${iconStyles[event.type]}`}>
+                  <Icon className={`h-2.5 w-2.5 ${iconColors[event.type]}`} />
+                </div>
+                <div className="flex justify-between items-baseline mb-0.5">
+                  <span className={`text-xs ${titleColors[event.type]}`}>{event.title}</span>
+                  <span className="text-[10px] text-on-surface-variant opacity-50">{formatTime(event.timestamp)}</span>
+                </div>
+                <p className="text-[10px] text-on-surface-variant line-clamp-1">{event.message}</p>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

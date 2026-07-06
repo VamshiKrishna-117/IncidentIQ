@@ -52,11 +52,11 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" size="sm">
+          <Button variant="secondary" size="sm" onClick={() => toast.info("Assignment panel coming soon")}>
             <UserPlus className="h-4 w-4" />
             Assign
           </Button>
-          <Button variant="secondary" size="sm">
+          <Button variant="secondary" size="sm" onClick={() => toast.info("Link PR feature coming soon")}>
             <Link2 className="h-4 w-4" />
             Link PR
           </Button>
