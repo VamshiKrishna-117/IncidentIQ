@@ -51,29 +51,7 @@ function formatTime(date: string): string {
 }
 
 export function LiveFeed() {
-  const [events, setEvents] = useState<FeedEvent[]>([
-    {
-      id: "1",
-      type: "deploy",
-      title: "Deploy #892 completed",
-      message: "service-auth updated to v1.4.2",
-      timestamp: new Date(Date.now() - 120000).toISOString(),
-    },
-    {
-      id: "2",
-      type: "alert",
-      title: "Alert Triggered",
-      message: "CPU utilization > 90% on redis-cluster-node-03.",
-      timestamp: new Date(Date.now() - 300000).toISOString(),
-    },
-    {
-      id: "3",
-      type: "user",
-      title: "J. Doe acknowledged alert",
-      message: "INC-2049 assigned.",
-      timestamp: new Date(Date.now() - 600000).toISOString(),
-    },
-  ]);
+  const [events, setEvents] = useState<FeedEvent[]>([]);
 
   useEffect(() => {
     const supabase = getClient();
