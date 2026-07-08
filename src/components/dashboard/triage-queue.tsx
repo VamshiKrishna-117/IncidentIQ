@@ -12,7 +12,7 @@ interface TriageQueueProps {
   loading: boolean;
 }
 
-const HIGH_PRIORITIES: Priority[] = ["P0", "P1"];
+const ALL_PRIORITIES: Priority[] = ["P0", "P1", "P2", "P3"];
 
 const sevIcons: Record<string, { icon: typeof CircleAlert; color: string; bg: string; border: string }> = {
   P0: { icon: CircleAlert, color: "text-error", bg: "bg-error/10", border: "border-l-error" },
@@ -35,7 +35,7 @@ function formatTimeAgo(date: string): string {
 }
 
 export function TriageQueue({ incidents, loading }: TriageQueueProps) {
-  const [filterHigh, setFilterHigh] = useState(false);
+  const [selectedPriorities, setSelectedPriorities] = useState<Set<Priority>>(new Set());
 
   if (loading) return <LoadingTable rows={4} />;
   if (!incidents || incidents.length === 0) {
@@ -48,8 +48,17 @@ export function TriageQueue({ incidents, loading }: TriageQueueProps) {
     );
   }
 
-  const filtered = filterHigh
-    ? incidents.filter((i) => HIGH_PRIORITIES.includes(i.priority))
+  const togglePriority = (p: Priority) => {
+    setSelectedPriorities((prev) => {
+      const next = new Set(prev);
+      if (next.has(p)) next.delete(p);
+      else next.add(p);
+      return next;
+    });
+  };
+
+  const filtered = selectedPriorities.size > 0
+    ? incidents.filter((i) => selectedPriorities.has(i.priority))
     : incidents;
 
   const visible = filtered.slice(0, 4);
@@ -58,16 +67,22 @@ export function TriageQueue({ incidents, loading }: TriageQueueProps) {
     <div className="flex flex-col gap-2">
       <div className="flex justify-between items-center bg-surface-container-highest/30 px-3 py-1.5 rounded-lg border border-[#1F1F1F]">
         <h3 className="text-sm font-semibold text-on-surface">Live Triage Queue</h3>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setFilterHigh((prev) => !prev)}
-            className={`text-xs flex items-center gap-1 transition-colors cursor-pointer ${
-              filterHigh ? "text-primary" : "text-on-surface-variant hover:text-primary"
-            }`}
-          >
-            <Filter className="h-3.5 w-3.5" />
-            {filterHigh ? "P0/P1 only" : "Filter"}
-          </button>
+        <div className="flex items-center gap-1">
+          <Filter className="h-3.5 w-3.5 text-on-surface-variant" />
+          {ALL_PRIORITIES.map((p) => {
+            const active = selectedPriorities.has(p);
+            return (
+              <button
+                key={p}
+                onClick={() => togglePriority(p)}
+                className={`text-[10px] font-medium px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
+                  active ? "bg-primary text-on-primary" : "text-on-surface-variant hover:text-on-surface"
+                }`}
+              >
+                {p}
+              </button>
+            );
+          })}
         </div>
       </div>
       <div className="flex flex-col gap-px">
