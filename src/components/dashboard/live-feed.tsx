@@ -58,14 +58,14 @@ export function LiveFeed() {
 
     supabase
       .from("incident_updates")
-      .select("message, author_name, created_at, update_type")
+      .select("id, message, author_name, created_at, update_type")
       .order("created_at", { ascending: false })
       .limit(10)
-      .then(({ data }: { data: { message: string; author_name: string; created_at: string; update_type: string }[] | null }) => {
+      .then(({ data }: { data: { id: string; message: string; author_name: string; created_at: string; update_type: string }[] | null }) => {
         if (data && data.length > 0) {
           setEvents(
             data.map((u) => ({
-              id: `init-${u.created_at}`,
+              id: u.id,
               type: (u.update_type === "SYSTEM" ? "deploy" : u.update_type === "AI" ? "alert" : "user") as FeedEvent["type"],
               title: u.update_type === "SYSTEM" ? "System Event" : u.update_type === "AI" ? "AI Analysis" : `${u.author_name} posted update`,
               message: u.message,

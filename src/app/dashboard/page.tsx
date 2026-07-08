@@ -40,16 +40,24 @@ export default function IncidentsPage() {
   const { setCreateIncidentOpen, globalSearch, setGlobalSearch } = useUIStore();
   useRealtimeIncidents();
 
-  const [search, setSearch] = useState(globalSearch || "");
+  const [search, setSearch] = useState("");
   const [filterPriority, setFilterPriority] = useState<Priority | "ALL">("ALL");
   const [filterStatus, setFilterStatus] = useState<Status | "ALL">("ALL");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const q = params.get("q") || globalSearch || "";
+    const q = params.get("q") || "";
     setSearch(q);
     setGlobalSearch(q);
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlQ = params.get("q") || "";
+    if (globalSearch !== urlQ) {
+      setSearch(globalSearch);
+    }
+  }, [globalSearch]);
 
   const filtered = useMemo(() => {
     if (!incidents) return [];
