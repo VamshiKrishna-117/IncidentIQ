@@ -11,19 +11,19 @@ import {
   Settings,
   LifeBuoy,
   Shield,
-  Sun,
-  Moon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/ui-store";
-import { useTheme } from "@/components/theme-provider";
 
-const navItems = [
+const topNavItems = [
   { href: "/", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/dashboard", icon: AlertTriangle, label: "Incidents", badge: "2" },
   { href: "/ai-assistant", icon: Brain, label: "AI Assistant" },
   { href: "/infrastructure", icon: Share2, label: "Infrastructure" },
   { href: "/analytics", icon: BarChart3, label: "Analytics" },
+];
+
+const bottomNavItems = [
   { href: "/settings", icon: Settings, label: "Settings" },
   { href: "/support", icon: LifeBuoy, label: "Support" },
 ];
@@ -35,7 +35,6 @@ interface SidebarProps {
 export function Sidebar({ open }: SidebarProps) {
   const pathname = usePathname();
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
-  const { resolved, setTheme } = useTheme();
 
   return (
     <>
@@ -76,7 +75,7 @@ export function Sidebar({ open }: SidebarProps) {
         </div>
 
         <nav className="flex-1 space-y-1 px-3 py-4" role="navigation">
-          {navItems.map((item) => {
+          {topNavItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
@@ -109,18 +108,28 @@ export function Sidebar({ open }: SidebarProps) {
           })}
         </nav>
 
-        <div className="border-t border-border px-3 py-3">
-          <button
-            onClick={() => setTheme(resolved === "dark" ? "light" : "dark")}
-            className={cn(
-              "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors",
-              !open && "lg:hidden"
-            )}
-            aria-label="Toggle theme"
-          >
-            {resolved === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            <span>{resolved === "dark" ? "Light Mode" : "Dark Mode"}</span>
-          </button>
+        <div className="border-t border-border px-3 py-3 space-y-1">
+          {bottomNavItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  isActive
+                    ? "bg-white/10 text-on-surface"
+                    : "text-on-surface-variant hover:bg-white/5 hover:text-on-surface"
+                )}
+              >
+                <item.icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+                <span className={cn("transition-opacity", !open && "lg:hidden")}>
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </aside>
     </>

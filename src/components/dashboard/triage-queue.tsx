@@ -1,7 +1,9 @@
 "use client";
 
-import type { Incident } from "@/types";
-import { CircleAlert, AlertTriangle, Info, Filter } from "lucide-react";
+import { useState } from "react";
+import Link from "next/link";
+import type { Incident, Priority } from "@/types";
+import { CircleAlert, AlertTriangle, Info, Filter, ArrowRight } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { LoadingTable } from "@/components/shared/loading-state";
 
@@ -9,6 +11,8 @@ interface TriageQueueProps {
   incidents: Incident[] | undefined;
   loading: boolean;
 }
+
+const HIGH_PRIORITIES: Priority[] = ["P0", "P1"];
 
 const sevIcons: Record<string, { icon: typeof CircleAlert; color: string; bg: string; border: string }> = {
   P0: { icon: CircleAlert, color: "text-error", bg: "bg-error/10", border: "border-l-error" },
@@ -31,6 +35,8 @@ function formatTimeAgo(date: string): string {
 }
 
 export function TriageQueue({ incidents, loading }: TriageQueueProps) {
+  const [filterHigh, setFilterHigh] = useState(false);
+
   if (loading) return <LoadingTable rows={4} />;
   if (!incidents || incidents.length === 0) {
     return (
@@ -42,25 +48,37 @@ export function TriageQueue({ incidents, loading }: TriageQueueProps) {
     );
   }
 
-  const visible = incidents.slice(0, 4);
+  const filtered = filterHigh
+    ? incidents.filter((i) => HIGH_PRIORITIES.includes(i.priority))
+    : incidents;
+
+  const visible = filtered.slice(0, 4);
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-between items-center bg-surface-container-highest/30 px-3 py-1.5 rounded-lg border border-[#1F1F1F]">
         <h3 className="text-sm font-semibold text-on-surface">Live Triage Queue</h3>
-        <button className="text-on-surface-variant hover:text-primary transition-colors text-xs flex items-center gap-1">
-          <Filter className="h-3.5 w-3.5" />
-          Filter
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setFilterHigh((prev) => !prev)}
+            className={`text-xs flex items-center gap-1 transition-colors cursor-pointer ${
+              filterHigh ? "text-primary" : "text-on-surface-variant hover:text-primary"
+            }`}
+          >
+            <Filter className="h-3.5 w-3.5" />
+            {filterHigh ? "P0/P1 only" : "Filter"}
+          </button>
+        </div>
       </div>
       <div className="flex flex-col gap-px">
         {visible.map((incident) => {
           const sev = sevIcons[incident.priority] || sevIcons.P3;
           const SevIcon = sev.icon;
           return (
-            <div
+            <Link
               key={incident.id}
-              className={`flex gap-2.5 items-start bg-black/70 backdrop-blur-xl border border-[#1F1F1F] rounded-lg p-2.5 ${sev.border} border-l-4 hover:bg-surface-container-high/50 transition-colors cursor-pointer group`}
+              href={`/incidents/${incident.id}`}
+              className={`flex gap-2.5 items-start bg-black/70 backdrop-blur-xl border border-[#1F1F1F] rounded-lg p-2.5 ${sev.border} border-l-4 hover:bg-surface-container-high/50 transition-colors group`}
             >
               <div className={`${sev.bg} p-1.5 rounded shrink-0`}>
                 <SevIcon className={`h-4 w-4 ${sev.color}`} />
@@ -78,10 +96,17 @@ export function TriageQueue({ incidents, loading }: TriageQueueProps) {
                   )}
                 </div>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>
+      <Link
+        href="/dashboard"
+        className="flex items-center justify-center gap-1 mt-1 text-xs text-on-surface-variant hover:text-primary transition-colors"
+      >
+        View All Incidents
+        <ArrowRight className="h-3 w-3" />
+      </Link>
     </div>
   );
 }

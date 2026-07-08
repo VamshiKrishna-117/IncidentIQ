@@ -55,6 +55,26 @@ export function LiveFeed() {
 
   useEffect(() => {
     const supabase = getClient();
+
+    supabase
+      .from("incident_updates")
+      .select("message, author_name, created_at, update_type")
+      .order("created_at", { ascending: false })
+      .limit(10)
+      .then(({ data }: { data: { message: string; author_name: string; created_at: string; update_type: string }[] | null }) => {
+        if (data && data.length > 0) {
+          setEvents(
+            data.map((u) => ({
+              id: `init-${u.created_at}`,
+              type: (u.update_type === "SYSTEM" ? "deploy" : u.update_type === "AI" ? "alert" : "user") as FeedEvent["type"],
+              title: u.update_type === "SYSTEM" ? "System Event" : u.update_type === "AI" ? "AI Analysis" : `${u.author_name} posted update`,
+              message: u.message,
+              timestamp: u.created_at,
+            }))
+          );
+        }
+      });
+
     const channel = supabase
       .channel("live-feed")
       .on(
@@ -66,7 +86,7 @@ export function LiveFeed() {
             {
               id: `update-${Date.now()}`,
               type: "user",
-              title: `${update.author_name} acknowledged alert`,
+              title: `${update.author_name} posted update`,
               message: update.message,
               timestamp: update.created_at,
             },

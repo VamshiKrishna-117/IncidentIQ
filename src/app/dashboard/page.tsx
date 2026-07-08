@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useIncidents } from "@/hooks/use-incidents";
 import { useRealtimeIncidents } from "@/hooks/use-supabase-realtime";
 import { LoadingPage } from "@/components/shared/loading-state";
@@ -37,12 +37,19 @@ function FilterBtn({ active, label, onClick }: { active: boolean; label: string;
 
 export default function IncidentsPage() {
   const { data: incidents, isLoading, error, refetch } = useIncidents();
-  const { setCreateIncidentOpen } = useUIStore();
+  const { setCreateIncidentOpen, globalSearch, setGlobalSearch } = useUIStore();
   useRealtimeIncidents();
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(globalSearch || "");
   const [filterPriority, setFilterPriority] = useState<Priority | "ALL">("ALL");
   const [filterStatus, setFilterStatus] = useState<Status | "ALL">("ALL");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("q") || globalSearch || "";
+    setSearch(q);
+    setGlobalSearch(q);
+  }, []);
 
   const filtered = useMemo(() => {
     if (!incidents) return [];
