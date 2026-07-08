@@ -66,3 +66,15 @@ export const NEXT_STATUS: Record<Status, Status | null> = {
   MONITORING: "RESOLVED",
   RESOLVED: null,
 };
+
+export type NotificationType = "incident_created" | "update_posted" | "status_changed" | "ai_analysis";
+
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  incident_id: string | null;
+  read: boolean;
+  created_at: string;
+}

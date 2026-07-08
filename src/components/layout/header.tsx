@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Menu, Bell, HelpCircle, Plus, Search, X } from "lucide-react";
+import { Menu, Bell, HelpCircle, Plus, Search, X, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUIStore } from "@/stores/ui-store";
 import { usePathname, useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { useNotifications, useUnreadCount, useMarkNotificationRead, useMarkAllRead } from "@/hooks/use-notifications";
+import { formatTimestamp } from "@/lib/utils";
 
 export function Header() {
   const { toggleSidebar, setCreateIncidentOpen, globalSearch, setGlobalSearch } = useUIStore();
@@ -14,6 +16,22 @@ export function Header() {
   const pathname = usePathname();
   const [localSearch, setLocalSearch] = useState(globalSearch);
   const isFirstRender = useRef(true);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
+  const { data: notifications } = useNotifications();
+  const unreadCount = useUnreadCount();
+  const markRead = useMarkNotificationRead();
+  const markAllRead = useMarkAllRead();
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setShowNotifications(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const pageTitles: Record<string, string> = {
     "/": "Operations Overview",
@@ -102,10 +120,54 @@ export function Header() {
           <span className="hidden sm:inline">Create Incident</span>
         </Button>
 
-        <button onClick={() => toast.info("No new notifications")} className="relative rounded-lg p-1.5 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors cursor-pointer" aria-label="Notifications">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-error" aria-hidden="true" />
-        </button>
+        <div ref={notifRef} className="relative">
+          <button onClick={() => setShowNotifications((prev) => !prev)} className="relative rounded-lg p-1.5 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors cursor-pointer" aria-label="Notifications">
+            <Bell className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-error px-1 text-[9px] font-bold text-on-error">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </button>
+          {showNotifications && (
+            <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-border bg-surface shadow-xl z-50">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-border">
+                <h3 className="text-xs font-semibold text-on-surface">Notifications</h3>
+                {unreadCount > 0 && (
+                  <button onClick={() => markAllRead.mutate()} className="text-[10px] text-primary hover:text-primary/80 transition-colors cursor-pointer">
+                    Mark all read
+                  </button>
+                )}
+              </div>
+              <div className="max-h-80 overflow-y-auto">
+                {!notifications || notifications.length === 0 ? (
+                  <div className="px-3 py-6 text-center text-xs text-on-surface-variant">
+                    No notifications yet
+                  </div>
+                ) : (
+                  notifications.map((n) => (
+                    <button
+                      key={n.id}
+                      onClick={() => { if (!n.read) markRead.mutate(n.id); }}
+                      className={`w-full text-left px-3 py-2.5 border-b border-border/50 hover:bg-white/[0.02] transition-colors cursor-pointer ${
+                        !n.read ? "bg-white/[0.03]" : ""
+                      }`}
+                    >
+                      <div className="flex items-start gap-2">
+                        {!n.read && <Circle className="h-2 w-2 mt-1 shrink-0 fill-primary text-primary" />}
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-medium text-on-surface">{n.title}</p>
+                          <p className="text-[10px] text-on-surface-variant mt-0.5 line-clamp-2">{n.message}</p>
+                          <p className="text-[9px] text-on-surface-variant/50 mt-0.5">{formatTimestamp(n.created_at)}</p>
+                        </div>
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         <button onClick={() => router.push("/support")} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors cursor-pointer" aria-label="Help">
           <HelpCircle className="h-5 w-5" />

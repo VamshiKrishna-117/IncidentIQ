@@ -125,20 +125,22 @@ export function LiveFeed() {
         Live Feed
       </h3>
       <div className="relative">
-        <div className="absolute left-[11px] top-2 bottom-0 w-px bg-[#2A2A2A]" />
-        <div className="flex flex-col gap-2 relative z-10 pl-8 pt-1 overflow-y-auto max-h-[200px] pr-1">
+        <div className="absolute left-[34px] top-2 bottom-0 w-px bg-[#2A2A2A]" />
+        <div className="flex flex-col gap-2 relative z-10 pl-6 pt-1 overflow-y-auto overflow-x-visible max-h-[200px] pr-1">
           {events.map((event) => {
             const Icon = iconMap[event.type];
             return (
-              <div key={event.id} className="relative">
-                <div className={`absolute -left-[37px] top-0.5 w-5 h-5 rounded-full flex items-center justify-center ${iconStyles[event.type]}`}>
+              <div key={event.id} className="relative flex gap-2.5">
+                <div className={`mt-0.5 w-5 h-5 shrink-0 rounded-full flex items-center justify-center ${iconStyles[event.type]}`}>
                   <Icon className={`h-2.5 w-2.5 ${iconColors[event.type]}`} />
                 </div>
-                <div className="flex justify-between items-baseline mb-0.5">
-                  <span className={`text-xs ${titleColors[event.type]}`}>{event.title}</span>
-                  <span className="text-[10px] text-on-surface-variant opacity-50">{formatTime(event.timestamp)}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex justify-between items-baseline mb-0.5">
+                    <span className={`text-xs ${titleColors[event.type]}`}>{event.title}</span>
+                    <span className="text-[10px] text-on-surface-variant opacity-50 shrink-0 ml-1">{formatTime(event.timestamp)}</span>
+                  </div>
+                  <p className="text-[10px] text-on-surface-variant line-clamp-1">{event.message}</p>
                 </div>
-                <p className="text-[10px] text-on-surface-variant line-clamp-1">{event.message}</p>
               </div>
             );
           })}

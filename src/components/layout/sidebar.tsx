@@ -62,15 +62,7 @@ export function Sidebar({ open }: SidebarProps) {
               !open && "lg:hidden"
             )}
           >
-            Aegis Sentinel
-          </span>
-          <span
-            className={cn(
-              "ml-auto rounded bg-surface-container-higher px-1.5 py-0.5 text-[10px] font-medium text-on-surface-variant transition-opacity",
-              !open && "lg:hidden"
-            )}
-          >
-            v2.4.0-prod
+            IncidentIQ
           </span>
         </div>
 

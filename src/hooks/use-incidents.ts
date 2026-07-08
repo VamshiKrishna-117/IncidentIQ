@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "./use-toast";
-import type { Incident, IncidentUpdate, AIResult } from "@/types";
+import type { Incident, IncidentUpdate, AIResult, NotificationType } from "@/types";
 import type { CreateIncidentInput, CreateUpdateInput } from "@/lib/validations";
 
 function getClient() {
@@ -78,9 +78,15 @@ export function useCreateIncident() {
       if (error) throw error;
       return data as Incident;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["incidents"] });
       toast.success("Incident created successfully");
+      getClient().from("notifications").insert({
+        title: `New ${data.priority} incident`,
+        message: data.title,
+        type: "incident_created" as NotificationType,
+        incident_id: data.id,
+      }).then().catch(() => {});
     },
     onError: (err) => {
       toast.error(err instanceof Error ? err.message : "Failed to create incident");
@@ -133,8 +139,15 @@ export function useCreateUpdate(incidentId: string) {
       if (error) throw error;
       return data as IncidentUpdate;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["incident-updates", incidentId] });
+      queryClient.invalidateQueries({ queryKey: ["incidents"] });
+      getClient().from("notifications").insert({
+        title: `New update from ${data.author_name}`,
+        message: data.message,
+        type: "update_posted" as NotificationType,
+        incident_id: incidentId,
+      }).then().catch(() => {});
     },
     onError: (err) => {
       toast.error(err instanceof Error ? err.message : "Failed to post update");
