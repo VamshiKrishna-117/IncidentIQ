@@ -64,7 +64,7 @@ export default function AIAssistantPage() {
           <div>
             <div className="mb-1 flex items-center gap-2">
               <Brain className="h-5 w-5 text-green-400" />
-              <h1 className="text-lg font-semibold text-on-surface">Nexus AI Analysis</h1>
+              <h1 className="text-lg font-semibold text-on-surface">AI Analysis</h1>
             </div>
             <p className="text-sm text-on-surface-variant">
               Real-time incident intelligence and mitigation strategy generation.
