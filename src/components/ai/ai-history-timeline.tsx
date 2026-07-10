@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { formatTimestamp } from "@/lib/utils";
-import { Brain, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Brain, CheckCircle, XCircle } from "lucide-react";
 import type { AIResult } from "@/types";
 
 const supabase = createClient();
@@ -16,11 +16,36 @@ interface HistoryEvent {
   status: "completed" | "failed" | "running";
 }
 
+const DEMO_EVENTS: HistoryEvent[] = [
+  { id: "1", text: "System health check routine initialized. Analyzing telemetry streams...", timestamp: new Date(Date.now() - 3600000).toISOString(), type: "system", status: "completed" },
+  { id: "2", text: "Routine log analysis. No anomalies detected.", timestamp: new Date(Date.now() - 7200000).toISOString(), type: "summary", status: "completed" },
+];
+
 export function AIHistoryTimeline({ incidentId }: { incidentId?: string }) {
-  const [events, setEvents] = useState<HistoryEvent[]>([
-    { id: "1", text: "System health check routine initialized. Analyzing telemetry streams...", timestamp: new Date(Date.now() - 3600000).toISOString(), type: "system", status: "completed" },
-    { id: "2", text: "Routine log analysis. No anomalies detected.", timestamp: new Date(Date.now() - 7200000).toISOString(), type: "summary", status: "completed" },
-  ]);
+  const [events, setEvents] = useState<HistoryEvent[]>(DEMO_EVENTS);
+
+  useEffect(() => {
+    supabase
+      .from("ai_results")
+      .select("type, result_text, created_at")
+      .order("created_at", { ascending: false })
+      .limit(20)
+      .then((result: { data: { type: string; result_text: string; created_at: string }[] | null }) => {
+        const data = result.data;
+        if (data && data.length > 0) {
+          const history: HistoryEvent[] = data.map((r) => ({
+            id: `ai-${r.created_at}`,
+            text: r.type === "SUMMARY"
+              ? `AI analysis completed for incident. ${r.result_text.substring(0, 80)}...`
+              : `AI ${r.type.toLowerCase().replace(/_/g, " ")} generated.`,
+            timestamp: r.created_at,
+            type: "summary" as const,
+            status: "completed" as const,
+          }));
+          setEvents(history);
+        }
+      });
+  }, []);
 
   useEffect(() => {
     const channel = supabase
