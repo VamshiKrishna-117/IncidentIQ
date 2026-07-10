@@ -27,14 +27,14 @@ export function AIHistoryTimeline({ incidentId }: { incidentId?: string }) {
   useEffect(() => {
     supabase
       .from("ai_results")
-      .select("type, result_text, created_at")
+      .select("id, type, result_text, created_at")
       .order("created_at", { ascending: false })
       .limit(20)
-      .then((result: { data: { type: string; result_text: string; created_at: string }[] | null }) => {
+      .then((result: { data: { id: string; type: string; result_text: string; created_at: string }[] | null }) => {
         const data = result.data;
         if (data && data.length > 0) {
           const history: HistoryEvent[] = data.map((r) => ({
-            id: `ai-${r.created_at}`,
+            id: r.id,
             text: r.type === "SUMMARY"
               ? `AI analysis completed for incident. ${r.result_text.substring(0, 80)}...`
               : `AI ${r.type.toLowerCase().replace(/_/g, " ")} generated.`,
@@ -59,7 +59,7 @@ export function AIHistoryTimeline({ incidentId }: { incidentId?: string }) {
             ? `AI analysis completed for incident. ${result.result_text.substring(0, 80)}...`
             : `AI ${result.type.toLowerCase().replace(/_/g, " ")} generated.`;
           setEvents((prev) => [
-            { id: `ai-${Date.now()}`, text, timestamp: result.created_at, type: "summary", status: "completed" },
+            { id: result.id, text, timestamp: result.created_at, type: "summary", status: "completed" },
             ...prev.slice(0, 19),
           ]);
         }
