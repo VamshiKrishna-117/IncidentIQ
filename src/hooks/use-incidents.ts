@@ -66,7 +66,7 @@ export function useCreateIncident() {
       const { data, error } = await getClient()
         .from("incidents")
         .insert({
-          display_id: "INC-...",
+          display_id: `INC-${Date.now()}`,
           title: input.title,
           description: input.description,
           priority: input.priority,

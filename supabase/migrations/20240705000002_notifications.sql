@@ -14,6 +14,7 @@ CREATE INDEX idx_notifications_read ON notifications(read);
 CREATE INDEX idx_notifications_created_at ON notifications(created_at DESC);
 
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow all on notifications" ON notifications;
 CREATE POLICY "Allow all on notifications" ON notifications
   FOR ALL USING (true) WITH CHECK (true);
 
