@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { LoadingPage } from "@/components/shared/loading-state";
 import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
+import { useToast } from "@/hooks/use-toast";
 import { Brain, Sparkles } from "lucide-react";
 import { useState } from "react";
 import type { Incident, AIResult } from "@/types";
@@ -17,6 +18,7 @@ const supabase = createClient();
 
 export default function AIAssistantPage() {
   const [generatingId, setGeneratingId] = useState<string | null>(null);
+  const toast = useToast();
 
   const { data: incidents, isLoading, error, refetch } = useQuery({
     queryKey: ["ai-incidents"],
@@ -37,10 +39,16 @@ export default function AIAssistantPage() {
   const handleGenerate = async (incidentId: string) => {
     setGeneratingId(incidentId);
     try {
-      await fetch(`/api/incidents/${incidentId}/ai`, { method: "POST" });
+      const res = await fetch(`/api/incidents/${incidentId}/ai`, { method: "POST" });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({ error: "AI analysis failed" }));
+        toast.error(body.error || "AI analysis failed");
+        return;
+      }
+      toast.success("Analysis complete");
       refetchAI();
     } catch {
-      // handled by API
+      toast.error("Network error — unable to reach the AI service");
     } finally {
       setGeneratingId(null);
     }
