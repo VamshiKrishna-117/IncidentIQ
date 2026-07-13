@@ -18,21 +18,26 @@ interface TimelineItemProps {
 }
 
 function renderMessage(text: string) {
-  const parts = text.split(/(```[\s\S]*?```)/g);
-  return parts.map((part, i) => {
-    const codeMatch = part.match(/^```\n?([\s\S]*?)```$/);
-    if (codeMatch) {
-      return (
-        <pre key={i} className="mt-1 overflow-x-auto rounded-lg bg-[#000000] p-3 font-mono text-xs text-green-400 leading-relaxed max-h-48">
-          <code>{codeMatch[1]}</code>
-        </pre>
-      );
+  const regex = /```[\s\S]*?```/g;
+  const nodes: React.ReactNode[] = [];
+  let last = 0;
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > last) {
+      nodes.push(<span key={`t${last}`} className="whitespace-pre-wrap">{text.slice(last, match.index)}</span>);
     }
-    if (part) {
-      return <span key={i} className="whitespace-pre-wrap">{part}</span>;
-    }
-    return null;
-  });
+    const code = match[0].slice(3, -3).replace(/^\n/, "");
+    nodes.push(
+      <pre key={`c${match.index}`} className="mb-2 overflow-x-auto overflow-y-auto rounded-lg bg-[#000000] p-3 font-mono text-xs text-green-400 leading-relaxed max-h-48 min-h-[60px] last:mb-0">
+        <code>{code || " "}</code>
+      </pre>
+    );
+    last = regex.lastIndex;
+  }
+  if (last < text.length) {
+    nodes.push(<span key={`t${last}`} className="whitespace-pre-wrap">{text.slice(last)}</span>);
+  }
+  return nodes.length > 0 ? nodes : <span className="whitespace-pre-wrap">{text}</span>;
 }
 
 export function TimelineItem({ message, authorName, timestamp, type, isFirst, isLast }: TimelineItemProps) {
