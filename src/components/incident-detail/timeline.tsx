@@ -7,9 +7,10 @@ import { LoadingTable } from "@/components/shared/loading-state";
 interface TimelineProps {
   updates: IncidentUpdate[] | undefined;
   loading: boolean;
+  onDeleteUpdate?: (updateId: string) => void;
 }
 
-export function Timeline({ updates, loading }: TimelineProps) {
+export function Timeline({ updates, loading, onDeleteUpdate }: TimelineProps) {
   if (loading) return <LoadingTable rows={3} />;
 
   if (!updates || updates.length === 0) {
@@ -31,6 +32,7 @@ export function Timeline({ updates, loading }: TimelineProps) {
           type={update.update_type as "USER" | "SYSTEM" | "AI"}
           isFirst={idx === 0}
           isLast={idx === updates.length - 1}
+          onDelete={onDeleteUpdate ? () => onDeleteUpdate(update.id) : undefined}
         />
       ))}
     </div>

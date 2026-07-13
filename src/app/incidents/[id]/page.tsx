@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   useIncident,
   useIncidentUpdates,
+  useDeleteUpdate,
 } from "@/hooks/use-incidents";
 import { useRealtimeIncidentUpdates } from "@/hooks/use-supabase-realtime";
 import { IncidentHeader } from "@/components/incident-detail/incident-header";
@@ -39,6 +40,7 @@ export default function IncidentDetailPage() {
   const { data: incident, isLoading, error, refetch } = useIncident(id);
   const { data: updates, isLoading: updatesLoading } = useIncidentUpdates(id);
   useRealtimeIncidentUpdates(id);
+  const deleteUpdate = useDeleteUpdate(id);
 
   const { data: aiResults = [] } = useQuery({
     queryKey: ["ai-results", id],
@@ -107,7 +109,7 @@ export default function IncidentDetailPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <Timeline updates={updates} loading={updatesLoading} />
+              <Timeline updates={updates} loading={updatesLoading} onDeleteUpdate={(id) => deleteUpdate.mutate(id)} />
             </CardContent>
           </Card>
 
