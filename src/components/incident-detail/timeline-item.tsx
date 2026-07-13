@@ -19,39 +19,73 @@ interface TimelineItemProps {
   onDelete?: () => void;
 }
 
-function renderMessage(text: string) {
+function MessageContent({ text }: { text: string }) {
+  const [lightbox, setLightbox] = useState<string | null>(null);
   const nodes: React.ReactNode[] = [];
   let remaining = text;
   let key = 0;
 
   while (remaining.length > 0) {
-    const startIdx = remaining.indexOf("```");
-    if (startIdx === -1) {
+    const codeIdx = remaining.indexOf("```");
+    const imgIdx = remaining.indexOf("![");
+
+    const nextCode = codeIdx === -1 ? Infinity : codeIdx;
+    const nextImg = imgIdx === -1 ? Infinity : imgIdx;
+    const earliest = Math.min(nextCode, nextImg);
+
+    if (earliest === Infinity) {
       nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining}</span>);
       break;
     }
 
-    if (startIdx > 0) {
-      nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(0, startIdx)}</span>);
+    if (earliest > 0) {
+      nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(0, earliest)}</span>);
     }
 
-    const endIdx = remaining.indexOf("```", startIdx + 3);
-    if (endIdx === -1) {
-      nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(startIdx)}</span>);
-      break;
+    if (earliest === nextCode) {
+      const endIdx = remaining.indexOf("```", codeIdx + 3);
+      if (endIdx === -1) {
+        nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(codeIdx)}</span>);
+        break;
+      }
+      const code = remaining.slice(codeIdx + 3, endIdx).replace(/^\n/, "");
+      nodes.push(
+        <pre key={key++} className="mb-2 h-40 overflow-x-auto overflow-y-auto rounded-lg bg-[#000000] p-3 font-mono text-xs text-green-400 leading-relaxed last:mb-0">
+          <code className="block h-full">{code || " "}</code>
+        </pre>
+      );
+      remaining = remaining.slice(endIdx + 3);
+    } else {
+      const closeParen = remaining.indexOf(")", imgIdx + 2);
+      if (closeParen === -1) {
+        nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(imgIdx)}</span>);
+        break;
+      }
+      const altEnd = remaining.indexOf("](", imgIdx + 2);
+      if (altEnd === -1 || altEnd > closeParen) {
+        nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(imgIdx)}</span>);
+        remaining = remaining.slice(imgIdx + 2);
+        continue;
+      }
+      const alt = remaining.slice(imgIdx + 2, altEnd);
+      const url = remaining.slice(altEnd + 2, closeParen);
+      nodes.push(
+        <img key={key++} src={url} alt={alt} loading="lazy" onClick={() => setLightbox(url)} className="inline-block h-24 w-auto max-w-[200px] rounded object-cover cursor-pointer hover:opacity-80 transition-opacity border border-border mb-1 mr-1" />
+      );
+      remaining = remaining.slice(closeParen + 1);
     }
-
-    const code = remaining.slice(startIdx + 3, endIdx).replace(/^\n/, "");
-    nodes.push(
-      <pre key={key++} className="mb-2 h-40 overflow-x-auto overflow-y-auto rounded-lg bg-[#000000] p-3 font-mono text-xs text-green-400 leading-relaxed last:mb-0">
-        <code className="block h-full">{code || " "}</code>
-      </pre>
-    );
-
-    remaining = remaining.slice(endIdx + 3);
   }
 
-  return nodes.length > 0 ? nodes : <span className="whitespace-pre-wrap">{text}</span>;
+  return (
+    <>
+      <div className="flex flex-wrap items-start gap-1">{nodes}</div>
+      {lightbox && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={() => setLightbox(null)}>
+          <img src={lightbox} alt="enlarged" className="max-h-[90vh] max-w-[90vw] rounded object-contain" onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
+    </>
+  );
 }
 
 export function TimelineItem({ message, authorName, timestamp, type, isFirst, isLast, onDelete }: TimelineItemProps) {
@@ -103,18 +137,18 @@ export function TimelineItem({ message, authorName, timestamp, type, isFirst, is
 
         {type === "SYSTEM" && (
           <div className="mt-1 rounded-lg bg-[#000000] p-3 font-mono text-xs text-green-400">
-            {renderMessage(message)}
+            <MessageContent text={message} />
           </div>
         )}
 
         {type === "AI" && (
           <div className="mt-1 rounded-lg border border-green-500/20 bg-green-500/5 p-3">
-            <div className="text-sm text-green-300">{renderMessage(message)}</div>
+            <div className="text-sm text-green-300"><MessageContent text={message} /></div>
           </div>
         )}
 
         {type === "USER" && (
-          <div className="mt-1 text-sm text-on-surface-variant">{renderMessage(message)}</div>
+          <div className="mt-1 text-sm text-on-surface-variant"><MessageContent text={message} /></div>
         )}
       </div>
     </div>
