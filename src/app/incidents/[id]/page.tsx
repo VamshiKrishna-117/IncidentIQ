@@ -21,6 +21,18 @@ import type { AIResult } from "@/types";
 
 const supabase = createClient();
 
+function serviceStatusVariant(status: string) {
+  if (status === "HEALTHY") return "RESOLVED" as const;
+  if (status === "DEGRADED") return "INVESTIGATING" as const;
+  return "P0" as const;
+}
+
+function serviceStatusLabel(status: string) {
+  if (status === "HEALTHY") return "Healthy";
+  if (status === "DEGRADED") return "Degraded";
+  return "Down";
+}
+
 export default function IncidentDetailPage() {
   const params = useParams();
   const id = params.id as string;
@@ -41,6 +53,20 @@ export default function IncidentDetailPage() {
     enabled: !!id,
   });
 
+  const { data: serviceStatus } = useQuery({
+    queryKey: ["service-status", incident?.service_affected],
+    queryFn: async () => {
+      if (!incident?.service_affected) return null;
+      const { data } = await supabase
+        .from("services")
+        .select("status")
+        .ilike("name", `%${incident.service_affected}%`)
+        .maybeSingle();
+      return data?.status ?? null;
+    },
+    enabled: !!incident?.service_affected,
+  });
+
   if (isLoading) return <LoadingDetail />;
   if (error) {
     return (
@@ -53,6 +79,8 @@ export default function IncidentDetailPage() {
     );
   }
   if (!incident) return null;
+
+  const svcStatus = serviceStatus || (incident.status === "RESOLVED" ? "HEALTHY" : "DEGRADED");
 
   return (
     <div className="p-4 md:p-6">
@@ -114,8 +142,8 @@ export default function IncidentDetailPage() {
                     <Shield className="h-4 w-4 text-yellow-400" />
                     <span className="text-sm text-on-surface">{incident.service_affected}</span>
                   </div>
-                  <Badge variant={incident.status === "RESOLVED" ? "RESOLVED" : "INVESTIGATING"}>
-                    {incident.status === "RESOLVED" ? "Resolved" : "Degraded"}
+                  <Badge variant={serviceStatusVariant(svcStatus)}>
+                    {serviceStatusLabel(svcStatus)}
                   </Badge>
                 </div>
               ) : (

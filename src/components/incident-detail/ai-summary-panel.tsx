@@ -60,12 +60,10 @@ export function AISummaryPanel({ incident, existingResults, updates }: AISummary
             <Brain className="h-4 w-4 text-green-400" />
             <CardTitle>AI Summary</CardTitle>
           </div>
-          {!summary && (
-            <Button variant="secondary" size="sm" onClick={handleGenerate} loading={loading}>
-              <Sparkles className="h-4 w-4" />
-              Generate
-            </Button>
-          )}
+          <Button variant="secondary" size="sm" onClick={handleGenerate} loading={loading}>
+            <Sparkles className="h-4 w-4" />
+            {summary ? "Regenerate" : "Generate"}
+          </Button>
         </div>
       </CardHeader>
       <CardContent>
