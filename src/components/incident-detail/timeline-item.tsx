@@ -17,6 +17,24 @@ interface TimelineItemProps {
   isLast?: boolean;
 }
 
+function renderMessage(text: string) {
+  const parts = text.split(/(```[\s\S]*?```)/g);
+  return parts.map((part, i) => {
+    const codeMatch = part.match(/^```\n?([\s\S]*?)```$/);
+    if (codeMatch) {
+      return (
+        <pre key={i} className="mt-1 overflow-x-auto rounded-lg bg-[#000000] p-3 font-mono text-xs text-green-400 leading-relaxed max-h-48">
+          <code>{codeMatch[1]}</code>
+        </pre>
+      );
+    }
+    if (part) {
+      return <span key={i} className="whitespace-pre-wrap">{part}</span>;
+    }
+    return null;
+  });
+}
+
 export function TimelineItem({ message, authorName, timestamp, type, isFirst, isLast }: TimelineItemProps) {
   const config = typeConfig[type] ?? typeConfig.USER;
 
@@ -52,19 +70,19 @@ export function TimelineItem({ message, authorName, timestamp, type, isFirst, is
         </div>
 
         {type === "SYSTEM" && (
-          <p className="mt-1 rounded-lg bg-[#000000] p-3 font-mono text-xs text-green-400">
-            {message}
-          </p>
+          <div className="mt-1 rounded-lg bg-[#000000] p-3 font-mono text-xs text-green-400">
+            {renderMessage(message)}
+          </div>
         )}
 
         {type === "AI" && (
           <div className="mt-1 rounded-lg border border-green-500/20 bg-green-500/5 p-3">
-            <p className="text-sm text-green-300">{message}</p>
+            <div className="text-sm text-green-300">{renderMessage(message)}</div>
           </div>
         )}
 
         {type === "USER" && (
-          <p className="mt-1 text-sm text-on-surface-variant">{message}</p>
+          <div className="mt-1 text-sm text-on-surface-variant">{renderMessage(message)}</div>
         )}
       </div>
     </div>
