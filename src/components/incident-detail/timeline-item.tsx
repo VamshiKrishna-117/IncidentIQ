@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { formatTime } from "@/lib/utils";
-import { User, Cpu, Brain, Trash2 } from "lucide-react";
+import { User, Cpu, Brain, Trash2, FileText, FileArchive, Download } from "lucide-react";
 import { useState } from "react";
 
 const typeConfig = {
@@ -19,6 +19,18 @@ interface TimelineItemProps {
   onDelete?: () => void;
 }
 
+function FileCard({ name, url }: { name: string; url: string }) {
+  const ext = name.split(".").pop()?.toLowerCase() || "";
+  const isArchive = ["zip", "tar", "gz", "rar", "7z"].includes(ext);
+  return (
+    <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface-container-higher px-3 py-2 hover:bg-white/5 transition-colors no-underline">
+      {isArchive ? <FileArchive className="h-4 w-4 text-yellow-400 shrink-0" /> : <FileText className="h-4 w-4 text-blue-400 shrink-0" />}
+      <span className="text-xs text-on-surface truncate max-w-[180px]">{name}</span>
+      <Download className="h-3.5 w-3.5 text-on-surface-variant shrink-0" />
+    </a>
+  );
+}
+
 function MessageContent({ text }: { text: string }) {
   const [lightbox, setLightbox] = useState<string | null>(null);
   const nodes: React.ReactNode[] = [];
@@ -28,10 +40,13 @@ function MessageContent({ text }: { text: string }) {
   while (remaining.length > 0) {
     const codeIdx = remaining.indexOf("```");
     const imgIdx = remaining.indexOf("![");
+    let linkIdx = remaining.indexOf("[");
+    if (linkIdx === imgIdx) linkIdx = -1;
 
     const nextCode = codeIdx === -1 ? Infinity : codeIdx;
     const nextImg = imgIdx === -1 ? Infinity : imgIdx;
-    const earliest = Math.min(nextCode, nextImg);
+    const nextLink = linkIdx === -1 ? Infinity : linkIdx;
+    const earliest = Math.min(nextCode, nextImg, nextLink);
 
     if (earliest === Infinity) {
       nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining}</span>);
@@ -55,7 +70,7 @@ function MessageContent({ text }: { text: string }) {
         </pre>
       );
       remaining = remaining.slice(endIdx + 3);
-    } else {
+    } else if (earliest === nextImg) {
       const closeParen = remaining.indexOf(")", imgIdx + 2);
       if (closeParen === -1) {
         nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(imgIdx)}</span>);
@@ -63,7 +78,7 @@ function MessageContent({ text }: { text: string }) {
       }
       const altEnd = remaining.indexOf("](", imgIdx + 2);
       if (altEnd === -1 || altEnd > closeParen) {
-        nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(imgIdx)}</span>);
+        nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(imgIdx, imgIdx + 2)}</span>);
         remaining = remaining.slice(imgIdx + 2);
         continue;
       }
@@ -72,6 +87,22 @@ function MessageContent({ text }: { text: string }) {
       nodes.push(
         <img key={key++} src={url} alt={alt} loading="lazy" onClick={() => setLightbox(url)} className="inline-block h-24 w-auto max-w-[200px] rounded object-cover cursor-pointer hover:opacity-80 transition-opacity border border-border mb-1 mr-1" />
       );
+      remaining = remaining.slice(closeParen + 1);
+    } else {
+      const closeParen = remaining.indexOf(")", linkIdx + 1);
+      if (closeParen === -1) {
+        nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(linkIdx)}</span>);
+        break;
+      }
+      const nameEnd = remaining.indexOf("](", linkIdx + 1);
+      if (nameEnd === -1 || nameEnd > closeParen) {
+        nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(linkIdx, linkIdx + 1)}</span>);
+        remaining = remaining.slice(linkIdx + 1);
+        continue;
+      }
+      const fileName = remaining.slice(linkIdx + 1, nameEnd);
+      const fileUrl = remaining.slice(nameEnd + 2, closeParen);
+      nodes.push(<FileCard key={key++} name={fileName} url={fileUrl} />);
       remaining = remaining.slice(closeParen + 1);
     }
   }

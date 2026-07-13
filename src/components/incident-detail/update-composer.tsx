@@ -22,6 +22,7 @@ function setStoredName(name: string) {
 
 type ToolPanel = "code" | "image" | "file" | null;
 type ImageTab = "url" | "upload";
+type FileTab = "upload" | "link";
 
 interface UpdateComposerProps {
   incidentId: string;
@@ -41,7 +42,11 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
   const [imagePreview, setImagePreview] = useState("");
   const [imageFileName, setImageFileName] = useState("");
   const [codeContent, setCodeContent] = useState("");
+  const [fileTab, setFileTab] = useState<FileTab>("upload");
   const [filePreview, setFilePreview] = useState<{ name: string; size: string } | null>(null);
+  const [fileLinkUrl, setFileLinkUrl] = useState("");
+  const [fileUploading, setFileUploading] = useState(false);
+  const [fileLinkName, setFileLinkName] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageFileRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -148,12 +153,34 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
     setFilePreview({ name: file.name, size });
   };
 
-  const insertFile = () => {
-    if (filePreview) {
-      insertAtCursor(`[${filePreview.name}](url)`);
+  const insertFileLink = () => {
+    const name = fileLinkName.trim() || fileLinkUrl.split("/").pop() || "file";
+    if (fileLinkUrl.trim()) {
+      insertAtCursor(`[${name}](${fileLinkUrl.trim()})`);
+      setFileLinkUrl("");
+      setFileLinkName("");
+      setActivePanel(null);
+    }
+  };
+
+  const handleFileUpload = async () => {
+    const file = fileInputRef.current?.files?.[0];
+    if (!file) return;
+    setFileUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!res.ok) throw new Error("Upload failed");
+      const { url, name } = await res.json();
+      insertAtCursor(`[${name}](${url})`);
       setFilePreview(null);
       setActivePanel(null);
       setFileInputKey((k) => k + 1);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to upload file");
+    } finally {
+      setFileUploading(false);
     }
   };
 
@@ -164,6 +191,8 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
     setImagePreview("");
     setImageFileName("");
     setFilePreview(null);
+    setFileLinkUrl("");
+    setFileLinkName("");
     setFileInputKey((k) => k + 1);
   };
 
@@ -284,23 +313,48 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
       {activePanel === "file" && (
         <div className="border-b border-border p-3">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs font-medium text-on-surface-variant">Attach File</span>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setFileTab("upload")} className={`rounded px-2 py-1 text-xs font-medium transition-colors cursor-pointer ${fileTab === "upload" ? "bg-primary/20 text-primary" : "text-on-surface-variant hover:text-on-surface"}`}>
+                <Upload className="mr-1 inline h-3 w-3" />
+                Upload
+              </button>
+              <button onClick={() => setFileTab("link")} className={`rounded px-2 py-1 text-xs font-medium transition-colors cursor-pointer ${fileTab === "link" ? "bg-primary/20 text-primary" : "text-on-surface-variant hover:text-on-surface"}`}>
+                <LinkIcon className="mr-1 inline h-3 w-3" />
+                Paste Link
+              </button>
+            </div>
             <button onClick={closePanel} className="text-on-surface-variant hover:text-on-surface cursor-pointer">
               <X className="h-4 w-4" />
             </button>
           </div>
-          <input key={fileInputKey} ref={fileInputRef} type="file" onChange={handleFileSelect} className="w-full text-xs text-on-surface-variant file:mr-2 file:rounded file:border-0 file:bg-primary/20 file:px-2 file:py-1 file:text-xs file:text-primary cursor-pointer" />
-          {filePreview && (
-            <div className="mt-2 flex items-center gap-2 rounded border border-border bg-[#050505] px-2.5 py-1.5">
-              <Paperclip className="h-3.5 w-3.5 text-on-surface-variant shrink-0" />
-              <span className="flex-1 text-xs text-on-surface truncate">{filePreview.name}</span>
-              <span className="text-[10px] text-on-surface-variant">{filePreview.size}</span>
+
+          {fileTab === "upload" ? (
+            <div>
+              <input key={fileInputKey} ref={fileInputRef} type="file" onChange={handleFileSelect} className="w-full text-xs text-on-surface-variant file:mr-2 file:rounded file:border-0 file:bg-primary/20 file:px-2 file:py-1 file:text-xs file:text-primary cursor-pointer" />
+              {filePreview && (
+                <div className="mt-2 flex items-center gap-2 rounded border border-border bg-[#050505] px-2.5 py-1.5">
+                  <Paperclip className="h-3.5 w-3.5 text-on-surface-variant shrink-0" />
+                  <span className="flex-1 text-xs text-on-surface truncate">{filePreview.name}</span>
+                  <span className="text-[10px] text-on-surface-variant">{filePreview.size}</span>
+                </div>
+              )}
+              <div className="mt-2 flex justify-end gap-2">
+                <Button variant="secondary" size="sm" onClick={closePanel}>Cancel</Button>
+                <Button size="sm" onClick={handleFileUpload} disabled={!filePreview || fileUploading} loading={fileUploading}>
+                  {fileUploading ? "Uploading..." : "Upload"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <input value={fileLinkName} onChange={(e) => setFileLinkName(e.target.value)} placeholder="Name (optional)" className="mb-2 w-full rounded border border-border bg-[#050505] px-2.5 py-1.5 text-xs text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary" />
+              <input value={fileLinkUrl} onChange={(e) => setFileLinkUrl(e.target.value)} placeholder="https://drive.google.com/..." className="w-full rounded border border-border bg-[#050505] px-2.5 py-1.5 text-xs text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary" />
+              <div className="mt-2 flex justify-end gap-2">
+                <Button variant="secondary" size="sm" onClick={closePanel}>Cancel</Button>
+                <Button size="sm" onClick={insertFileLink} disabled={!fileLinkUrl.trim()}>Insert</Button>
+              </div>
             </div>
           )}
-          <div className="mt-2 flex justify-end gap-2">
-            <Button variant="secondary" size="sm" onClick={closePanel}>Cancel</Button>
-            <Button size="sm" onClick={insertFile} disabled={!filePreview}>Insert</Button>
-          </div>
         </div>
       )}
 
