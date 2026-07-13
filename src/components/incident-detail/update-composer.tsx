@@ -126,6 +126,8 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
     reader.readAsDataURL(file);
   };
 
+  const [fileInputKey, setFileInputKey] = useState(0);
+
   const insertImageUpload = () => {
     if (imagePreview) {
       insertAtCursor(`![${imageFileName}](${imagePreview})`);
@@ -133,7 +135,7 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
       setImageFileName("");
       setImageUrl("");
       setActivePanel(null);
-      if (imageFileRef.current) imageFileRef.current.value = "";
+      setFileInputKey((k) => k + 1);
     }
   };
 
@@ -151,7 +153,7 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
       insertAtCursor(`[${filePreview.name}](url)`);
       setFilePreview(null);
       setActivePanel(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      setFileInputKey((k) => k + 1);
     }
   };
 
@@ -162,6 +164,7 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
     setImagePreview("");
     setImageFileName("");
     setFilePreview(null);
+    setFileInputKey((k) => k + 1);
   };
 
   const filteredMentions = mentionUsers.filter((u) =>
@@ -263,7 +266,7 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
             </div>
           ) : (
             <div>
-              <input ref={imageFileRef} type="file" accept="image/*" onChange={handleImageFileSelect} className="w-full text-xs text-on-surface-variant file:mr-2 file:rounded file:border-0 file:bg-primary/20 file:px-2 file:py-1 file:text-xs file:text-primary cursor-pointer" />
+              <input key={fileInputKey} ref={imageFileRef} type="file" accept="image/*" onChange={handleImageFileSelect} className="w-full text-xs text-on-surface-variant file:mr-2 file:rounded file:border-0 file:bg-primary/20 file:px-2 file:py-1 file:text-xs file:text-primary cursor-pointer" />
               {imagePreview && (
                 <div className="mt-2 rounded border border-border bg-[#050505] p-2">
                   <img src={imagePreview} alt="Preview" className="max-h-32 rounded object-contain" />
@@ -286,7 +289,7 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
               <X className="h-4 w-4" />
             </button>
           </div>
-          <input ref={fileInputRef} type="file" onChange={handleFileSelect} className="w-full text-xs text-on-surface-variant file:mr-2 file:rounded file:border-0 file:bg-primary/20 file:px-2 file:py-1 file:text-xs file:text-primary cursor-pointer" />
+          <input key={fileInputKey} ref={fileInputRef} type="file" onChange={handleFileSelect} className="w-full text-xs text-on-surface-variant file:mr-2 file:rounded file:border-0 file:bg-primary/20 file:px-2 file:py-1 file:text-xs file:text-primary cursor-pointer" />
           {filePreview && (
             <div className="mt-2 flex items-center gap-2 rounded border border-border bg-[#050505] px-2.5 py-1.5">
               <Paperclip className="h-3.5 w-3.5 text-on-surface-variant shrink-0" />
