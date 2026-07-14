@@ -69,7 +69,7 @@ export function Sidebar({ open }: SidebarProps) {
       <aside
         aria-label="Main navigation"
         className={cn(
-          "fixed left-0 top-0 z-30 flex h-full flex-col border-r border-border bg-surface/70 backdrop-blur-xl transition-all duration-300 overflow-hidden",
+          "fixed left-0 top-0 z-40 lg:z-30 flex h-full flex-col border-r border-border bg-surface/70 backdrop-blur-xl transition-all duration-300 overflow-hidden pb-16 lg:pb-0",
           open ? "w-60 translate-x-0" : "w-0 -translate-x-full lg:w-16 lg:translate-x-0"
         )}
       >
