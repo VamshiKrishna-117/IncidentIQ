@@ -61,7 +61,7 @@ export function AIAnalysisCard({ incident, result, onGenerate, generating }: AIA
         {summary?.recommended_action && (
           <div className="mb-2 flex items-start gap-2 rounded-lg bg-green-500/5 p-2">
             <TerminalSmall className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-400" />
-            <p className="break-words text-xs text-green-300 leading-relaxed">
+            <p className="min-w-0 break-words text-xs text-green-300 leading-relaxed">
               {summary.recommended_action}
             </p>
           </div>
