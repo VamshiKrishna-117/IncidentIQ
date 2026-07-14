@@ -202,7 +202,7 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
 
   return (
     <div className="rounded-lg border border-border bg-surface-container-low">
-      <div className="flex items-center gap-1 border-b border-border px-3 py-1.5">
+      <div className="flex items-center gap-1 border-b border-border px-2.5 sm:px-3 py-1.5 overflow-x-auto">
         <button onClick={() => setActivePanel(activePanel === "code" ? null : "code")} className={`rounded p-1 transition-colors cursor-pointer ${activePanel === "code" ? "bg-primary/20 text-primary" : "text-on-surface-variant hover:bg-white/5 hover:text-on-surface"}`} title="Insert code block">
           <Terminal className="h-4 w-4" />
         </button>
@@ -247,8 +247,8 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
             value={codeContent}
             onChange={(e) => setCodeContent(e.target.value)}
             placeholder="Paste or type your code here..."
-            className="w-full resize-none rounded border border-border bg-[#050505] px-2.5 py-2 text-xs font-mono text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary min-h-[80px]"
-            rows={4}
+            className="w-full resize-none rounded border border-border bg-[#050505] px-2 sm:px-2.5 py-2 text-xs font-mono text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary min-h-[60px] sm:min-h-[80px]"
+            rows={3}
           />
           <div className="mt-2 flex justify-end gap-2">
             <Button variant="secondary" size="sm" onClick={closePanel}>Cancel</Button>
@@ -368,17 +368,17 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
         rows={2}
       />
 
-      <div className="flex items-center justify-between border-t border-border px-3 py-2">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between border-t border-border px-2.5 sm:px-3 py-2">
+        <div className="flex items-center gap-2 min-w-0">
           {showNamePrompt ? (
             <div className="flex items-center gap-1">
-              <span className="text-xs text-on-surface-variant">Name:</span>
-              <input value={nameInput} onChange={(e) => setNameInput(e.target.value)} onBlur={handleSaveName} onKeyDown={(e) => { if (e.key === "Enter") handleSaveName(); }} className="w-24 rounded border border-border bg-[#050505] px-1.5 py-0.5 text-xs text-on-surface focus:outline-none focus:border-primary" placeholder="Your name" autoFocus />
+              <span className="text-xs text-on-surface-variant shrink-0">Name:</span>
+              <input value={nameInput} onChange={(e) => setNameInput(e.target.value)} onBlur={handleSaveName} onKeyDown={(e) => { if (e.key === "Enter") handleSaveName(); }} className="w-20 sm:w-24 rounded border border-border bg-[#050505] px-1.5 py-0.5 text-xs text-on-surface focus:outline-none focus:border-primary" placeholder="Your name" autoFocus />
             </div>
           ) : (
-            <button onClick={() => { setShowNamePrompt(true); setNameInput(authorName); }} className="flex items-center gap-1 rounded px-2 py-1 text-xs text-on-surface-variant hover:bg-white/5 transition-colors cursor-pointer">
-              <AtSign className="h-3.5 w-3.5" />
-              {authorName}
+            <button onClick={() => { setShowNamePrompt(true); setNameInput(authorName); }} className="flex items-center gap-1 rounded px-2 py-1 text-xs text-on-surface-variant hover:bg-white/5 transition-colors cursor-pointer truncate max-w-[120px] sm:max-w-none">
+              <AtSign className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{authorName}</span>
             </button>
           )}
         </div>

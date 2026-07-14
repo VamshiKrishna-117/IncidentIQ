@@ -82,7 +82,7 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
                   onChange={(e) => setAssigneeInput(e.target.value)}
                   onBlur={handleSaveAssignee}
                   onKeyDown={(e) => { if (e.key === "Enter") handleSaveAssignee(); if (e.key === "Escape") { setEditingAssignee(false); setAssigneeInput(incident.assignee ?? ""); } }}
-                  className="w-28 rounded border border-border bg-[#050505] px-1.5 py-0.5 text-xs text-on-surface focus:outline-none focus:border-primary"
+                  className="w-20 sm:w-28 rounded border border-border bg-[#050505] px-1.5 py-0.5 text-xs text-on-surface focus:outline-none focus:border-primary"
                   placeholder="Unassigned"
                 />
               </span>
@@ -95,47 +95,50 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2">
           <Button variant="secondary" size="sm" onClick={() => setEditingAssignee(true)}>
             <UserPlus className="h-4 w-4" />
-            Assign
+            <span className="hidden sm:inline">Assign</span>
           </Button>
           <Button variant="secondary" size="sm" onClick={() => setShowLinkPR(true)}>
             <Link2 className="h-4 w-4" />
-            Link PR
+            <span className="hidden sm:inline">Link PR</span>
           </Button>
           {nextStatus && nextStatus !== "RESOLVED" && (
             <Button variant="primary" size="sm" onClick={handleAdvanceStatus} loading={updateIncident.isPending}>
               <CheckCircle className="h-4 w-4" />
-              Mark {STATUS_LABELS[nextStatus]}
+              <span className="hidden sm:inline">Mark </span>
+              {STATUS_LABELS[nextStatus]}
             </Button>
           )}
           {incident.status !== "RESOLVED" && (
             <Button variant="secondary" size="sm" onClick={() => setShowResolve(true)}>
               <CheckCircle className="h-4 w-4 text-green-400" />
-              Resolve
+              <span className="hidden sm:inline">Resolve</span>
             </Button>
           )}
         </div>
       </div>
 
       {showLinkPR && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg border border-border bg-surface-container-low p-3">
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface-container-low p-2.5 sm:p-3">
           <Link2 className="h-4 w-4 text-on-surface-variant shrink-0" />
           <input
             value={prUrl}
             onChange={(e) => setPrUrl(e.target.value)}
             placeholder="Paste PR URL..."
-            className="flex-1 bg-transparent text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none"
+            className="min-w-0 flex-1 basis-[120px] bg-transparent text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none"
             onKeyDown={(e) => { if (e.key === "Enter") handleLinkPR(); if (e.key === "Escape") { setShowLinkPR(false); setPrUrl(""); } }}
           />
-          <Button size="sm" onClick={handleLinkPR} loading={createUpdate.isPending} disabled={!prUrl.trim()}>
-            <ExternalLink className="h-3.5 w-3.5" />
-            Link
-          </Button>
-          <button onClick={() => { setShowLinkPR(false); setPrUrl(""); }} className="text-on-surface-variant hover:text-on-surface cursor-pointer">
-            <X className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-1.5">
+            <Button size="sm" onClick={handleLinkPR} loading={createUpdate.isPending} disabled={!prUrl.trim()}>
+              <ExternalLink className="h-3.5 w-3.5" />
+              Link
+            </Button>
+            <button onClick={() => { setShowLinkPR(false); setPrUrl(""); }} className="text-on-surface-variant hover:text-on-surface cursor-pointer">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       )}
 
