@@ -13,9 +13,13 @@ function getSeverityLevel(incident: Incident): number {
   return 0;
 }
 
+function stripImageMarkdown(text: string): string {
+  return text.replace(/!\[.*?\]\((.*?)\)/g, "[image]");
+}
+
 export function generateFallbackSummary(incident: Incident, updates: IncidentUpdate[]): AISummary {
   const severity = getSeverityLevel(incident);
-  const lastUpdate = updates.length > 0 ? updates[updates.length - 1].message : null;
+  const lastUpdate = updates.length > 0 ? stripImageMarkdown(updates[updates.length - 1].message) : null;
 
   const rootCauseMap: Record<string, string> = {
     latency: "High latency detected, possibly due to resource exhaustion or upstream dependency failure.",
