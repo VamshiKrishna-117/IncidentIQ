@@ -17,6 +17,8 @@ export function Header() {
   const [localSearch, setLocalSearch] = useState(globalSearch);
   const isFirstRender = useRef(true);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const { data: notifications } = useNotifications();
   const unreadCount = useUnreadCount();
@@ -46,6 +48,18 @@ export function Header() {
   const title = Object.entries(pageTitles).find(([path]) =>
     pathname === path ? true : pathname.startsWith(path) && path !== "/"
   )?.[1] ?? pageTitles["/"];
+
+  const openMobileSearch = () => {
+    setMobileSearchOpen(true);
+    setLocalSearch("");
+    setTimeout(() => searchInputRef.current?.focus(), 100);
+  };
+
+  const closeMobileSearch = () => {
+    setMobileSearchOpen(false);
+    setLocalSearch("");
+    setGlobalSearch("");
+  };
 
   useEffect(() => {
     setLocalSearch(globalSearch);
@@ -77,18 +91,59 @@ export function Header() {
     return () => clearTimeout(timer);
   }, [localSearch, pathname, router, setGlobalSearch]);
 
+  // ----- Mobile search overlay (renders below <sm only) -----
+  if (mobileSearchOpen) {
+    return (
+      <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-border bg-surface/70 backdrop-blur-xl px-3 sm:hidden">
+        <button onClick={closeMobileSearch} className="rounded-lg p-1.5 text-on-surface-variant hover:text-on-surface transition-colors cursor-pointer" aria-label="Close search">
+          <X className="h-5 w-5" />
+        </button>
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
+          <input
+            ref={searchInputRef}
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            className="w-full rounded-lg border border-border bg-[#050505] py-2 pl-9 pr-8 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
+            placeholder="Search incidents..."
+            aria-label="Search incidents"
+          />
+          {localSearch && (
+            <button
+              onClick={() => { setLocalSearch(""); setGlobalSearch(""); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface cursor-pointer"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      </header>
+    );
+  }
+
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border bg-surface/70 backdrop-blur-xl px-3 md:px-4">
+    <header className="sticky top-0 z-20 flex h-14 items-center gap-1 border-b border-border bg-surface/70 backdrop-blur-xl px-2 md:px-4 md:gap-3">
       <button
         onClick={toggleSidebar}
-        className="rounded-lg p-1.5 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors lg:hidden"
+        className="rounded-lg p-1.5 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors lg:hidden cursor-pointer"
         aria-label="Toggle sidebar"
       >
         <Menu className="h-5 w-5" />
       </button>
 
-      <h1 className="truncate text-sm font-semibold text-on-surface md:text-base">{title}</h1>
+      <h1 className="truncate text-sm font-semibold text-on-surface md:text-base min-w-0">{title}</h1>
 
+      {/* Mobile search trigger — visible below sm */}
+      <button
+        onClick={openMobileSearch}
+        className="sm:hidden rounded-lg p-1.5 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors cursor-pointer"
+        aria-label="Open search"
+      >
+        <Search className="h-5 w-5" />
+      </button>
+
+      {/* Desktop / tablet search — visible sm and up */}
       <div className="hidden sm:relative sm:flex sm:flex-1 sm:max-w-xs">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
         <input
@@ -109,12 +164,13 @@ export function Header() {
         )}
       </div>
 
-      <div className="ml-auto flex items-center gap-1 md:gap-2">
+      <div className="ml-auto flex items-center gap-0.5 md:gap-2">
         <Button
           variant="primary"
           size="sm"
           onClick={() => setCreateIncidentOpen(true)}
           aria-label="Create new incident"
+          className="h-9 px-2 md:px-3"
         >
           <Plus className="h-4 w-4" />
           <span className="hidden sm:inline">Create Incident</span>
@@ -130,7 +186,7 @@ export function Header() {
             )}
           </button>
           {showNotifications && (
-            <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-border bg-surface shadow-xl z-50">
+            <div className="absolute right-0 top-full mt-2 w-80 max-w-[calc(100vw-16px)] rounded-xl border border-border bg-surface shadow-xl z-50">
               <div className="flex items-center justify-between px-3 py-2 border-b border-border">
                 <h3 className="text-xs font-semibold text-on-surface">Notifications</h3>
                 {unreadCount > 0 && (
