@@ -19,9 +19,9 @@ export function AIAnalysisCard({ incident, result, onGenerate, generating }: AIA
   return (
     <Card className={result ? "border-green-500/20" : ""}>
       <CardContent className="p-4">
-        <div className="mb-3 flex items-start justify-between">
-          <div>
-            <div className="mb-1 flex items-center gap-2">
+        <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex flex-wrap items-center gap-1.5">
               <span className="font-mono text-xs text-on-surface-variant">{incident.display_id}</span>
               <Badge variant={incident.priority}>{incident.priority}</Badge>
               <Badge variant={incident.status}>{incident.status}</Badge>
@@ -32,14 +32,14 @@ export function AIAnalysisCard({ incident, result, onGenerate, generating }: AIA
             <button
               onClick={onGenerate}
               disabled={generating}
-              className="flex items-center gap-1 rounded-lg bg-green-500/10 px-2.5 py-1.5 text-xs font-medium text-green-400 hover:bg-green-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-1 rounded-lg bg-green-500/10 px-2.5 py-1.5 text-xs font-medium text-green-400 hover:bg-green-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
             >
               <Brain className="h-3.5 w-3.5" />
               {generating ? "Analyzing..." : "Analyze"}
             </button>
           )}
           {result && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0">
               <Shield className="h-3.5 w-3.5 text-green-400" />
               <span className="text-xs font-medium text-green-400">{result.confidence ?? "?"}%</span>
             </div>
@@ -61,20 +61,20 @@ export function AIAnalysisCard({ incident, result, onGenerate, generating }: AIA
         {summary?.recommended_action && (
           <div className="mb-2 flex items-start gap-2 rounded-lg bg-green-500/5 p-2">
             <TerminalSmall className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-400" />
-            <p className="text-xs text-green-300">
+            <p className="text-xs text-green-300 leading-relaxed">
               {summary.recommended_action}
             </p>
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-2 border-t border-border">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 pt-2 border-t border-border">
           <div className="flex items-center gap-1 text-[10px] text-on-surface-variant">
-            <Clock className="h-3 w-3" />
+            <Clock className="h-3 w-3 shrink-0" />
             {result ? formatTimestamp(result.created_at) : "Not yet analyzed"}
           </div>
           {summary?.blast_radius && (
             <div className="flex items-center gap-1 text-[10px] text-yellow-400">
-              <AlertTriangle className="h-3 w-3" />
+              <AlertTriangle className="h-3 w-3 shrink-0" />
               {summary.blast_radius}
             </div>
           )}

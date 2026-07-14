@@ -80,7 +80,7 @@ export default function AIAssistantPage() {
           </div>
           <Button variant="secondary" size="sm" onClick={() => refetchAI()}>
             <Sparkles className="h-4 w-4" />
-            Refresh Results
+            <span className="hidden sm:inline">Refresh Results</span>
           </Button>
         </div>
       </div>
