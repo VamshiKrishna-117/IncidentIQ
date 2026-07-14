@@ -200,16 +200,14 @@ export default function IncidentsPage() {
 
   return (
     <div className="p-4 md:p-6">
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-lg font-semibold text-on-surface">Active Incidents</h1>
-          <p className="text-sm text-on-surface-variant">All reported incidents across the infrastructure.</p>
-        </div>
+      <div className="mb-1 flex items-center justify-between gap-3">
+        <h1 className="text-lg font-semibold text-on-surface">Active Incidents</h1>
         <Button variant="primary" size="sm" onClick={() => setCreateIncidentOpen(true)}>
           <Plus className="h-4 w-4" />
           Create Incident
         </Button>
       </div>
+      <p className="mb-4 text-sm text-on-surface-variant">All reported incidents across the infrastructure.</p>
 
       <div className="mb-4 space-y-3">
         <div className="relative w-full max-w-full sm:max-w-sm">
