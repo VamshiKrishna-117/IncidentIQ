@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/ui-store";
+import { useEffect } from "react";
 
 const topNavItems = [
   { href: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -36,6 +37,19 @@ export function Sidebar({ open }: SidebarProps) {
   const pathname = usePathname();
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const setSidebarOpen = useUIStore((s) => s.setSidebarOpen);
+
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+    const onResize = () => {
+      if (window.innerWidth >= 1024) {
+        setSidebarOpen(true);
+      }
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [setSidebarOpen]);
 
   const handleNavClick = () => {
     if (window.innerWidth < 1024) {
