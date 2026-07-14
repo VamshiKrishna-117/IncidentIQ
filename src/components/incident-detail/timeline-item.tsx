@@ -49,18 +49,18 @@ function MessageContent({ text }: { text: string }) {
     const earliest = Math.min(nextCode, nextImg, nextLink);
 
     if (earliest === Infinity) {
-      nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining}</span>);
+      nodes.push(<span key={key++} className="break-words whitespace-pre-wrap">{remaining}</span>);
       break;
     }
 
     if (earliest > 0) {
-      nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(0, earliest)}</span>);
+      nodes.push(<span key={key++} className="break-words whitespace-pre-wrap">{remaining.slice(0, earliest)}</span>);
     }
 
     if (earliest === nextCode) {
       const endIdx = remaining.indexOf("```", codeIdx + 3);
       if (endIdx === -1) {
-        nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(codeIdx)}</span>);
+        nodes.push(<span key={key++} className="break-words whitespace-pre-wrap">{remaining.slice(codeIdx)}</span>);
         break;
       }
       const code = remaining.slice(codeIdx + 3, endIdx).replace(/^\n/, "");
@@ -73,12 +73,12 @@ function MessageContent({ text }: { text: string }) {
     } else if (earliest === nextImg) {
       const closeParen = remaining.indexOf(")", imgIdx + 2);
       if (closeParen === -1) {
-        nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(imgIdx)}</span>);
+        nodes.push(<span key={key++} className="break-words whitespace-pre-wrap">{remaining.slice(imgIdx)}</span>);
         break;
       }
       const altEnd = remaining.indexOf("](", imgIdx + 2);
       if (altEnd === -1 || altEnd > closeParen) {
-        nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(imgIdx, imgIdx + 2)}</span>);
+        nodes.push(<span key={key++} className="break-words whitespace-pre-wrap">{remaining.slice(imgIdx, imgIdx + 2)}</span>);
         remaining = remaining.slice(imgIdx + 2);
         continue;
       }
@@ -91,12 +91,12 @@ function MessageContent({ text }: { text: string }) {
     } else {
       const closeParen = remaining.indexOf(")", linkIdx + 1);
       if (closeParen === -1) {
-        nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(linkIdx)}</span>);
+        nodes.push(<span key={key++} className="break-words whitespace-pre-wrap">{remaining.slice(linkIdx)}</span>);
         break;
       }
       const nameEnd = remaining.indexOf("](", linkIdx + 1);
       if (nameEnd === -1 || nameEnd > closeParen) {
-        nodes.push(<span key={key++} className="whitespace-pre-wrap">{remaining.slice(linkIdx, linkIdx + 1)}</span>);
+        nodes.push(<span key={key++} className="break-words whitespace-pre-wrap">{remaining.slice(linkIdx, linkIdx + 1)}</span>);
         remaining = remaining.slice(linkIdx + 1);
         continue;
       }
@@ -174,7 +174,7 @@ export function TimelineItem({ message, authorName, timestamp, type, isFirst, is
 
         {type === "AI" && (
           <div className="mt-1 rounded-lg border border-green-500/20 bg-green-500/5 p-3">
-            <div className="text-sm text-green-300"><MessageContent text={message} /></div>
+            <div className="break-words text-sm text-green-300"><MessageContent text={message} /></div>
           </div>
         )}
 

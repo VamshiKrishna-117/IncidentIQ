@@ -55,16 +55,16 @@ export function AISummaryPanel({ incident, existingResults, updates }: AISummary
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Brain className="h-4 w-4 text-green-400" />
-            <CardTitle>AI Summary</CardTitle>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Brain className="h-4 w-4 text-green-400 shrink-0" />
+              <CardTitle>AI Summary</CardTitle>
+            </div>
+            <Button variant="secondary" size="sm" onClick={handleGenerate} loading={loading}>
+              <Sparkles className="h-4 w-4" />
+              {summary ? "Regenerate" : "Generate"}
+            </Button>
           </div>
-          <Button variant="secondary" size="sm" onClick={handleGenerate} loading={loading}>
-            <Sparkles className="h-4 w-4" />
-            {summary ? "Regenerate" : "Generate"}
-          </Button>
-        </div>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -78,7 +78,7 @@ export function AISummaryPanel({ incident, existingResults, updates }: AISummary
           <div className="space-y-4">
             <div>
               <p className="mb-1 text-xs font-medium text-on-surface-variant">Root Cause Analysis</p>
-              <p className="text-sm text-on-surface">{summary.root_cause}</p>
+              <p className="break-words text-sm text-on-surface">{summary.root_cause}</p>
             </div>
 
             {summary.confidence && (
@@ -94,7 +94,7 @@ export function AISummaryPanel({ incident, existingResults, updates }: AISummary
                 <AlertTriangle className="mt-0.5 h-4 w-4 text-yellow-400" />
                 <div>
                   <p className="text-xs font-medium text-on-surface-variant">Blast Radius</p>
-                  <p className="text-sm text-on-surface">{summary.blast_radius}</p>
+                  <p className="break-words text-sm text-on-surface">{summary.blast_radius}</p>
                 </div>
               </div>
             )}
@@ -105,7 +105,7 @@ export function AISummaryPanel({ incident, existingResults, updates }: AISummary
                   <TerminalIcon className="h-4 w-4 text-green-400" />
                   <span className="text-xs font-medium text-green-400">Recommended Action</span>
                 </div>
-                <p className="mt-1 text-sm text-green-300">{summary.recommended_action}</p>
+                <p className="mt-1 break-words text-sm text-green-300">{summary.recommended_action}</p>
               </div>
             )}
 
@@ -117,8 +117,8 @@ export function AISummaryPanel({ incident, existingResults, updates }: AISummary
                     <div key={i} className="flex items-start gap-2 rounded-lg bg-surface-container-higher p-2.5">
                       <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-on-surface-variant" />
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-on-surface">{action.title}</p>
-                        <p className="text-xs text-on-surface-variant">{action.description}</p>
+                        <p className="break-words text-sm font-medium text-on-surface">{action.title}</p>
+                        <p className="break-words text-xs text-on-surface-variant">{action.description}</p>
                       </div>
                       <Badge variant={action.impact === "HIGH" ? "P0" : action.impact === "MEDIUM" ? "P2" : "P3"}>
                         {action.impact}
@@ -138,10 +138,10 @@ export function AISummaryPanel({ incident, existingResults, updates }: AISummary
                 )}
                 <div>
                   <p className="text-xs font-medium text-on-surface-variant">Priority Recommendation</p>
-                  <p className="text-sm font-semibold text-on-surface">
+                  <p className="break-words text-sm font-semibold text-on-surface">
                     {summary.priority_review.recommendation.replace(/_/g, " ")}
                   </p>
-                  <p className="text-xs text-on-surface-variant">{summary.priority_review.reason}</p>
+                  <p className="break-words text-xs text-on-surface-variant">{summary.priority_review.reason}</p>
                 </div>
               </div>
             )}

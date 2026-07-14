@@ -26,20 +26,20 @@ export function AIAnalysisCard({ incident, result, onGenerate, generating }: AIA
               <Badge variant={incident.priority}>{incident.priority}</Badge>
               <Badge variant={incident.status}>{incident.status}</Badge>
             </div>
-            <h3 className="text-sm font-semibold text-on-surface">{incident.title}</h3>
+            <h3 className="truncate text-sm font-semibold text-on-surface">{incident.title}</h3>
           </div>
           {onGenerate && !result && (
             <button
               onClick={onGenerate}
               disabled={generating}
-              className="flex items-center gap-1 rounded-lg bg-green-500/10 px-2.5 py-1.5 text-xs font-medium text-green-400 hover:bg-green-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+              className="min-h-[44px] sm:min-h-[36px] flex items-center gap-1 rounded-lg bg-green-500/10 px-3 sm:px-2.5 text-xs font-medium text-green-400 hover:bg-green-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
             >
               <Brain className="h-3.5 w-3.5" />
               {generating ? "Analyzing..." : "Analyze"}
             </button>
           )}
           {result && (
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center gap-1 shrink-0 min-h-[36px]">
               <Shield className="h-3.5 w-3.5 text-green-400" />
               <span className="text-xs font-medium text-green-400">{result.confidence ?? "?"}%</span>
             </div>
@@ -47,11 +47,11 @@ export function AIAnalysisCard({ incident, result, onGenerate, generating }: AIA
         </div>
 
         {summary?.root_cause ? (
-          <p className="mb-3 text-xs text-on-surface-variant leading-relaxed">
+          <p className="mb-3 break-words text-xs text-on-surface-variant leading-relaxed">
             {summary.root_cause}
           </p>
         ) : result ? (
-          <p className="mb-3 text-xs text-on-surface-variant">{result.result_text}</p>
+          <p className="mb-3 break-words text-xs text-on-surface-variant">{result.result_text}</p>
         ) : (
           <p className="mb-3 text-xs text-on-surface-variant italic">
             No AI analysis yet. Click "Analyze" to generate.
@@ -61,7 +61,7 @@ export function AIAnalysisCard({ incident, result, onGenerate, generating }: AIA
         {summary?.recommended_action && (
           <div className="mb-2 flex items-start gap-2 rounded-lg bg-green-500/5 p-2">
             <TerminalSmall className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-400" />
-            <p className="text-xs text-green-300 leading-relaxed">
+            <p className="break-words text-xs text-green-300 leading-relaxed">
               {summary.recommended_action}
             </p>
           </div>
@@ -70,12 +70,12 @@ export function AIAnalysisCard({ incident, result, onGenerate, generating }: AIA
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 pt-2 border-t border-border">
           <div className="flex items-center gap-1 text-[10px] text-on-surface-variant">
             <Clock className="h-3 w-3 shrink-0" />
-            {result ? formatTimestamp(result.created_at) : "Not yet analyzed"}
+            <span className="break-words">{result ? formatTimestamp(result.created_at) : "Not yet analyzed"}</span>
           </div>
           {summary?.blast_radius && (
             <div className="flex items-center gap-1 text-[10px] text-yellow-400">
               <AlertTriangle className="h-3 w-3 shrink-0" />
-              {summary.blast_radius}
+              <span className="break-words">{summary.blast_radius}</span>
             </div>
           )}
         </div>

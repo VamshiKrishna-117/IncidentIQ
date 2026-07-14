@@ -306,7 +306,7 @@ export default function IncidentsPage() {
                   />
                 </td>
                 <td className="px-4 py-3">
-                  <Link href={`/incidents/${incident.id}`} className="text-sm font-medium text-on-surface hover:text-primary transition-colors">
+                  <Link href={`/incidents/${incident.id}`} className="break-words text-sm font-medium text-on-surface hover:text-primary transition-colors">
                     {incident.display_id}: {incident.title}
                   </Link>
                 </td>

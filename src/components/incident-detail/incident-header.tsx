@@ -70,7 +70,7 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
             <StatusBadge status={incident.status} />
             <PriorityBadge priority={incident.priority} />
           </div>
-          <h2 className="text-heading-md font-semibold text-on-surface">{incident.title}</h2>
+          <h2 className="break-words text-heading-md font-semibold text-on-surface">{incident.title}</h2>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-on-surface-variant">
             <span>Reported by <span className="text-on-surface font-medium">{incident.reporter_name}</span></span>
             {editingAssignee ? (

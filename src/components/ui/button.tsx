@@ -15,10 +15,10 @@ const variants = {
 };
 
 const sizes = {
-  sm: "h-8 px-3 text-xs",
-  md: "h-9 px-4 text-sm",
-  lg: "h-10 px-5 text-sm",
-  icon: "h-9 w-9 p-0",
+  sm: "h-8 px-3 text-xs max-sm:min-h-[44px]",
+  md: "h-9 px-4 text-sm max-sm:min-h-[44px]",
+  lg: "h-10 px-5 text-sm max-sm:min-h-[44px]",
+  icon: "h-9 w-9 p-0 max-sm:min-h-[44px] max-sm:min-w-[44px]",
 };
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

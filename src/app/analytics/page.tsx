@@ -210,7 +210,7 @@ export default function AnalyticsPage() {
           <button
             key={range}
             onClick={() => setTimeRange(range)}
-            className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors cursor-pointer ${
+            className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors cursor-pointer max-sm:min-h-[44px] ${
               timeRange === range
                 ? "bg-primary text-on-primary"
                 : "border border-border text-on-surface-variant hover:bg-white/5"
@@ -339,10 +339,10 @@ export default function AnalyticsPage() {
                 {topServices.map((svc, i) => (
                   <div key={i} className="flex items-start justify-between border-b border-border pb-3 last:border-0 last:pb-0">
                     <div>
-                      <p className="text-sm font-medium text-on-surface">{svc.name}</p>
+                      <p className="break-words text-sm font-medium text-on-surface">{svc.name}</p>
                       <p className="text-xs text-on-surface-variant">{svc.region}</p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right shrink-0">
                       <p className="text-sm text-on-surface">{svc.incidents} Incidents</p>
                       <p className="text-xs text-on-surface-variant">{svc.downtime}</p>
                     </div>
