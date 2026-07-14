@@ -9,9 +9,13 @@ const groq = groqApiKey ? new Groq({ apiKey: groqApiKey }) : null;
 const geminiApiKey = process.env.GEMINI_API_KEY;
 const gemini = geminiApiKey ? new GoogleGenerativeAI(geminiApiKey) : null;
 
+function stripImageMarkdown(text: string): string {
+  return text.replace(/!\[.*?\]\((.*?)\)/g, "[image]");
+}
+
 function buildPrompt(incident: Incident, updates: IncidentUpdate[], type: string): string {
   const updateLog = updates
-    .map((u) => `[${u.update_type}] ${u.author_name}: ${u.message}`)
+    .map((u) => `[${u.update_type}] ${u.author_name}: ${stripImageMarkdown(u.message)}`)
     .join("\n");
 
   return `You are an AI incident response analyst for a production operations team.
