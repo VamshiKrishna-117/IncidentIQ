@@ -43,14 +43,14 @@ export default function SupportPage() {
             <div key={i} className="rounded-lg border border-border overflow-hidden">
               <button
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium text-on-surface hover:bg-white/[0.02] transition-colors"
+                className="flex w-full items-center justify-between gap-3 px-3 sm:px-4 py-3 text-sm font-medium text-on-surface hover:bg-white/[0.02] transition-colors text-left max-sm:min-h-[44px]"
               >
-                {faq.q}
-                <ChevronDown className={cn("h-4 w-4 text-on-surface-variant transition-transform", openFaq === i && "rotate-180")} />
+                <span className="break-words">{faq.q}</span>
+                <ChevronDown className={cn("h-4 w-4 text-on-surface-variant transition-transform shrink-0", openFaq === i && "rotate-180")} />
               </button>
               {openFaq === i && (
-                <div className="border-t border-border px-4 py-3 text-sm text-on-surface-variant leading-relaxed">
-                  {faq.a}
+                <div className="border-t border-border px-3 sm:px-4 py-3 text-sm text-on-surface-variant leading-relaxed">
+                  <span className="break-words">{faq.a}</span>
                 </div>
               )}
             </div>
