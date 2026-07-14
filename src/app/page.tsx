@@ -76,20 +76,21 @@ export default function DashboardPage() {
 
   return (
     <div className="p-4">
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-semibold tracking-tight text-on-surface">Operations Overview</h2>
-          <p className="mt-0.5 text-xs text-on-surface-variant">Real-time system telemetry and incident triaging.</p>
+      <div className="mb-1">
+        <h2 className="text-xl font-semibold tracking-tight text-on-surface">Operations Overview</h2>
+        <p className="mt-0.5 text-xs text-on-surface-variant">Real-time system telemetry and incident triaging.</p>
+      </div>
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-1.5 text-[10px] text-on-surface-variant">
+          <span className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded-full bg-error animate-pulse shrink-0" />
+            <span>Prod Cluster Active</span>
+          </span>
+          <span className="mx-2 opacity-30 hidden sm:inline">|</span>
+          <span className="hidden sm:inline">Last updated: {formatLastUpdated(dataUpdatedAt)}</span>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-[10px] text-on-surface-variant">
-            <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-error animate-pulse" />
-              Prod Cluster Active
-            </span>
-            <span className="mx-2 opacity-30">|</span>
-            <span>Last updated: {formatLastUpdated(dataUpdatedAt)}</span>
-          </div>
+        <div className="flex items-center gap-2">
+          <span className="sm:hidden text-[10px] text-on-surface-variant">Updated {formatLastUpdated(dataUpdatedAt)}</span>
           <Button variant="secondary" size="sm" onClick={() =>
             exportDashboardCSV(
               incidents ?? [],
@@ -108,7 +109,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-12 gap-3">
-        <div className="col-span-12 grid grid-cols-4 gap-3">
+        <div className="col-span-12 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <KPICard
             icon="CircleAlert"
             label="Active Incidents"
@@ -141,10 +142,10 @@ export default function DashboardPage() {
         </div>
 
         <div className="col-span-12 grid grid-cols-12 gap-3">
-          <div className="col-span-8">
+          <div className="col-span-12 lg:col-span-8">
             <TriageQueue incidents={incidents} loading={isLoading} />
           </div>
-          <div className="col-span-4">
+          <div className="col-span-12 lg:col-span-4">
             <LiveFeed />
           </div>
         </div>
