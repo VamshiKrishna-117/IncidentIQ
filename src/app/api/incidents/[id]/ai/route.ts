@@ -48,12 +48,19 @@ export async function POST(
       .eq("incident_id", id)
       .order("created_at", { ascending: true });
 
+    const { data: settings } = await supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "ai_provider")
+      .maybeSingle();
+    const provider = (settings?.value as string) ?? undefined;
+
     const { generateSummary, generateNextActions, reviewPriority } = await import("@/lib/ai");
 
     const [summary, actions, priorityReview] = await Promise.all([
-      generateSummary(incident, updates ?? []),
-      generateNextActions(incident, updates ?? []),
-      reviewPriority(incident),
+      generateSummary(incident, updates ?? [], provider),
+      generateNextActions(incident, updates ?? [], provider),
+      reviewPriority(incident, provider),
     ]);
 
     const results = [];

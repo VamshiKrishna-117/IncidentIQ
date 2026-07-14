@@ -2,7 +2,7 @@
 
 import { Select, SelectItem } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Brain } from "lucide-react";
+import { Brain, Sparkles } from "lucide-react";
 import type { SettingsMap } from "@/hooks/use-settings";
 
 interface AIConfigTabProps {
@@ -24,11 +24,11 @@ export function AIConfigTab({ settings, onChange }: AIConfigTabProps) {
               <Badge variant="RESOLVED">Fast</Badge>
             </div>
           </SelectItem>
-          <SelectItem value="openai">
+          <SelectItem value="gemini">
             <div className="flex items-center gap-2">
-              <Brain className="h-4 w-4" />
-              <span>OpenAI GPT-4o</span>
-              <Badge variant="P0">Premium</Badge>
+              <Sparkles className="h-4 w-4" />
+              <span>Gemini Flash</span>
+              <Badge variant="INVESTIGATING">Balanced</Badge>
             </div>
           </SelectItem>
           <SelectItem value="fallback">
@@ -42,7 +42,7 @@ export function AIConfigTab({ settings, onChange }: AIConfigTabProps) {
 
       <div>
         <p className="mb-1 text-sm font-medium text-on-surface">Auto-Analyze Critical Incidents</p>
-        <p className="mb-2 text-xs text-on-surface-variant">Automatically trigger AI summary generation for SEV-1 and SEV-2.</p>
+        <p className="mb-2 text-xs text-on-surface-variant">Automatically trigger AI summary generation for P0 and P1 incidents.</p>
         <label className="flex cursor-pointer items-center gap-3">
           <div className={`relative h-6 w-10 rounded-full transition-colors ${settings.auto_analyze_critical ? "bg-primary" : "bg-surface-container-higher"}`}>
             <div className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-on-primary transition-transform ${settings.auto_analyze_critical ? "translate-x-4" : "translate-x-0"}`} />

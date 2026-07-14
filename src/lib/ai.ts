@@ -79,7 +79,23 @@ async function callGemini(prompt: string): Promise<string | null> {
   }
 }
 
-async function callAI(prompt: string): Promise<string | null> {
+async function callAI(prompt: string, preferredProvider?: string): Promise<string | null> {
+  if (preferredProvider === "groq") {
+    const result = await callGroq(prompt);
+    if (result) return result;
+    const fallback = await callGemini(prompt);
+    if (fallback) return fallback;
+    return null;
+  }
+
+  if (preferredProvider === "gemini") {
+    const result = await callGemini(prompt);
+    if (result) return result;
+    const fallback = await callGroq(prompt);
+    if (fallback) return fallback;
+    return null;
+  }
+
   const groqResult = await callGroq(prompt);
   if (groqResult) return groqResult;
 
@@ -122,9 +138,9 @@ export interface AIPriorityReview {
   reason: string;
 }
 
-export async function generateSummary(incident: Incident, updates: IncidentUpdate[]): Promise<AISummary> {
+export async function generateSummary(incident: Incident, updates: IncidentUpdate[], provider?: string): Promise<AISummary> {
   const prompt = buildPrompt(incident, updates, "summary");
-  const response = await callAI(prompt);
+  const response = await callAI(prompt, provider);
 
   if (response) {
     const parsed = parseJSON<AISummary>(response);
@@ -134,9 +150,9 @@ export async function generateSummary(incident: Incident, updates: IncidentUpdat
   return generateFallbackSummary(incident, updates);
 }
 
-export async function generateNextActions(incident: Incident, updates: IncidentUpdate[]): Promise<AIAction[]> {
+export async function generateNextActions(incident: Incident, updates: IncidentUpdate[], provider?: string): Promise<AIAction[]> {
   const prompt = buildPrompt(incident, updates, "actions");
-  const response = await callAI(prompt);
+  const response = await callAI(prompt, provider);
 
   if (response) {
     const parsed = parseJSON<{ actions: AIAction[] }>(response);
@@ -146,9 +162,9 @@ export async function generateNextActions(incident: Incident, updates: IncidentU
   return generateFallbackActions(incident);
 }
 
-export async function reviewPriority(incident: Incident): Promise<AIPriorityReview> {
+export async function reviewPriority(incident: Incident, provider?: string): Promise<AIPriorityReview> {
   const prompt = buildPrompt(incident, [], "priority");
-  const response = await callAI(prompt);
+  const response = await callAI(prompt, provider);
 
   if (response) {
     const parsed = parseJSON<AIPriorityReview>(response);
