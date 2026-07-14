@@ -84,7 +84,7 @@ export default function SettingsPage() {
       <Card>
         <CardContent className="p-5">
           {activeTab === "general" && <GeneralTab settings={currentSettings} onChange={onChange} />}
-          {activeTab === "realtime" && <RealtimeTab settings={currentSettings} onChange={onChange} />}
+          {activeTab === "realtime" && <RealtimeTab />}
           {activeTab === "ai-config" && <AIConfigTab settings={currentSettings} onChange={onChange} />}
           {activeTab === "system" && <SystemTab />}
         </CardContent>
