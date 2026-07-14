@@ -243,7 +243,7 @@ export default function AnalyticsPage() {
                       <stop offset="95%" stopColor="#ffffff" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <XAxis dataKey="date" tick={{ fill: "#8e9192", fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="date" tick={{ fill: "#8e9192", fontSize: 10 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
                   <YAxis tick={{ fill: "#8e9192", fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
                   <Tooltip
                     contentStyle={{ background: "#201f1f", border: "1px solid #1f1f1f", borderRadius: 8 }}
@@ -264,8 +264,8 @@ export default function AnalyticsPage() {
           </CardHeader>
           <CardContent>
             {priorityDist.length > 0 ? (
-              <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
-                <ResponsiveContainer width="100%" height={180} className="max-w-[200px]">
+                <div className="flex flex-col items-center gap-3 sm:flex-row sm:gap-6">
+                <ResponsiveContainer width="100%" height={160} className="max-w-[160px] sm:max-w-[200px]">
                   <PieChart>
                     <Pie
                       data={priorityDist}
@@ -313,7 +313,7 @@ export default function AnalyticsPage() {
             {statusByWeek.length > 0 ? (
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={statusByWeek}>
-                  <XAxis dataKey="week" tick={{ fill: "#8e9192", fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="week" tick={{ fill: "#8e9192", fontSize: 10 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
                   <YAxis tick={{ fill: "#8e9192", fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
                   <Tooltip
                     contentStyle={{ background: "#201f1f", border: "1px solid #1f1f1f", borderRadius: 8 }}
