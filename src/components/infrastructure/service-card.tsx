@@ -29,12 +29,12 @@ export function ServiceCard({
 
   return (
     <Card>
-      <div className="flex items-start justify-between mb-3">
-        <div>
-          <h3 className="text-sm font-semibold text-on-surface">{name}</h3>
-          <p className="text-xs text-on-surface-variant font-mono">{cluster}</p>
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="min-w-0">
+          <h3 className="break-words text-sm font-semibold text-on-surface">{name}</h3>
+          <p className="truncate text-xs text-on-surface-variant font-mono">{cluster}</p>
         </div>
-        <Badge variant={status === "HEALTHY" ? "RESOLVED" : status === "DEGRADED" ? "INVESTIGATING" : "P0"}>
+        <Badge variant={status === "HEALTHY" ? "RESOLVED" : status === "DEGRADED" ? "INVESTIGATING" : "P0"} className="shrink-0">
           {cfg.label}
         </Badge>
       </div>
@@ -90,12 +90,12 @@ export function ServiceCard({
         </p>
       )}
 
-      <div className="flex items-center justify-between pt-2 border-t border-border">
-        <div className="flex items-center gap-1 text-[10px] text-on-surface-variant">
-          <RefreshCw className="h-3 w-3" />
-          HEARTBEAT: {heartbeatAt}
+      <div className="flex items-center justify-between gap-2 pt-2 border-t border-border">
+        <div className="flex items-center gap-1 text-[10px] text-on-surface-variant min-w-0">
+          <RefreshCw className="h-3 w-3 shrink-0" />
+          <span className="truncate">HEARTBEAT: {heartbeatAt}</span>
         </div>
-        <button onClick={() => {}} className="rounded p-1 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors cursor-pointer" aria-label="Open terminal">
+        <button onClick={() => {}} className="rounded p-1.5 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors cursor-pointer max-sm:min-h-[44px] max-sm:min-w-[44px] flex items-center justify-center" aria-label="Open terminal">
           <Terminal className="h-3.5 w-3.5" />
         </button>
       </div>

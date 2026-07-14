@@ -71,19 +71,19 @@ export default function InfrastructurePage() {
           <div className="flex items-center gap-2">
             <Button variant="secondary" size="sm" onClick={() => refetch()}>
               <RefreshCw className="h-4 w-4" />
-              Refresh
+              <span className="hidden sm:inline">Refresh</span>
             </Button>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Filter className="h-4 w-4 text-on-surface-variant" />
+          <Filter className="h-4 w-4 text-on-surface-variant shrink-0" />
           <span className="text-xs text-on-surface-variant">FILTER BY:</span>
           {regions.map((r) => (
             <button
               key={r}
               onClick={() => setRegion(r)}
-              className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors ${
+              className={`rounded-lg px-3 py-1 text-xs font-medium transition-colors cursor-pointer max-sm:min-h-[44px] ${
                 region === r
                   ? "bg-primary text-on-primary"
                   : "border border-border text-on-surface-variant hover:bg-white/5"
@@ -92,7 +92,7 @@ export default function InfrastructurePage() {
               {r === "ALL" ? "ALL REGIONS" : r.toUpperCase()}
             </button>
           ))}
-          <span className="ml-auto text-xs text-on-surface-variant">Last updated: {lastUpdated}</span>
+          <span className="ml-auto max-sm:ml-0 max-sm:w-full text-xs text-on-surface-variant">Last updated: {lastUpdated}</span>
         </div>
       </div>
 
