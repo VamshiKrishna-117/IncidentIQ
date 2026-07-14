@@ -17,7 +17,7 @@ const mobileItems = [
 
 export function MobileNav() {
   const pathname = usePathname();
-  const { setCreateIncidentOpen } = useUIStore();
+  const { setCreateIncidentOpen, setSidebarOpen } = useUIStore();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t border-border bg-surface/90 backdrop-blur-xl lg:hidden safe-area-bottom" role="navigation" aria-label="Mobile navigation">
@@ -27,6 +27,7 @@ export function MobileNav() {
           <Link
             key={item.href}
             href={item.href}
+            onClick={() => setSidebarOpen(false)}
             aria-current={isActive ? "page" : undefined}
             className={cn(
               "flex flex-col items-center gap-0.5 py-2 px-2 text-[10px] font-medium transition-colors min-w-0",

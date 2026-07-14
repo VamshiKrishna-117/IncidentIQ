@@ -35,6 +35,13 @@ interface SidebarProps {
 export function Sidebar({ open }: SidebarProps) {
   const pathname = usePathname();
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
+  const setSidebarOpen = useUIStore((s) => s.setSidebarOpen);
+
+  const handleNavClick = () => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  };
 
   return (
     <>
@@ -58,7 +65,7 @@ export function Sidebar({ open }: SidebarProps) {
           </div>
           <span
             className={cn(
-              "text-sm font-semibold text-on-surface transition-opacity",
+              "text-sm font-semibold text-on-surface transition-opacity whitespace-nowrap",
               !open && "lg:hidden"
             )}
           >
@@ -73,9 +80,10 @@ export function Sidebar({ open }: SidebarProps) {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={handleNavClick}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  "flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors min-h-[44px]",
                   isActive
                     ? "bg-white/10 text-on-surface"
                     : "text-on-surface-variant hover:bg-white/5 hover:text-on-surface"
@@ -107,9 +115,10 @@ export function Sidebar({ open }: SidebarProps) {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={handleNavClick}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  "flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors min-h-[44px]",
                   isActive
                     ? "bg-white/10 text-on-surface"
                     : "text-on-surface-variant hover:bg-white/5 hover:text-on-surface"
