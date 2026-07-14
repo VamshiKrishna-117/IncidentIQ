@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const FAQS = [
-  { q: "How do I create a new incident?", a: "Click the \"Create Incident\" button in the top bar or use the keyboard shortcut Ctrl+N. Fill in the title, severity, service, and description fields, then submit." },
-  { q: "What do priority levels mean?", a: "P0 (Critical): Complete service outage. P1 (High): Major feature unavailable. P2 (Medium): Partial degradation. P3 (Low): Minor issue with workaround. P4 (Info): Informational or cosmetic." },
-  { q: "How does AI analysis work?", a: "AI analysis uses the configured provider (Groq Llama 3 or GPT-4o) to parse incident logs and context, then generates a root cause summary, blast radius estimate, and recommended mitigation steps." },
-  { q: "Can I integrate with external tools?", a: "Yes. IncidentIQ supports webhook integrations via the Settings > Integrations panel. Custom webhooks can be configured for Slack, PagerDuty, or any HTTP endpoint." },
-  { q: "How is real-time data streamed?", a: "The dashboard uses Supabase Realtime (WebSocket-based CDC) to push live incident updates. On disconnect, it automatically falls back to polling every 15 seconds." },
-  { q: "How do I export analytics data?", a: "From the Analytics page, use the \"Export CSV\" button in the top-right corner. The export includes all incident data within the selected time range." },
+  { q: "How do I create a new incident?", a: "Click the \"Create Incident\" button in the top bar (or the header of the Incidents table). Fill in the title, description, and priority (P0–P3), then submit. The system auto-generates a display ID like INC-0001." },
+  { q: "What do the priority levels mean?", a: "P0 (Critical Outage) — complete service down. P1 (Severe Degradation) — major feature broken. P2 (Partial Impact) — degraded but workable. P3 (Minor Issue) — cosmetic or low-impact." },
+  { q: "How does the AI summary work?", a: "Click \"Generate\" on any incident detail page. The app reads your configured provider in Settings > AI Config (Groq or Gemini), sends the incident context and timeline, and returns a root cause analysis, blast radius, and recommended actions." },
+  { q: "How do I include code or images in an update?", a: "Use the toolbar above the composer. The Terminal button opens a code panel — paste your code, click Insert, then Post. The Image button supports pasting a URL or uploading from your system. Files are uploaded to Supabase Storage and linked automatically." },
+  { q: "How do I search, filter, or bulk-resolve incidents?", a: "Use the header search bar (works across all pages). On the Incidents page, click service chips to filter, priority chips in the Triage Queue, or check the box next to incidents to select multiple and click \"Resolve Selected\"." },
+  { q: "How do I delete or edit a timeline update?", a: "Hover over any timeline entry on the incident detail page. A trash icon appears — click it, then Confirm to delete. To edit the assignee name or linked PR, click the text in the incident header." },
 ];
 
 const SUPPORT_CARDS = [
