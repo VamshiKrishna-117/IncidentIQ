@@ -212,7 +212,7 @@ export default function IncidentsPage() {
       </div>
 
       <div className="mb-4 space-y-3">
-        <div className="relative w-full max-w-sm">
+        <div className="relative w-full max-w-full sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant" />
           <input
             value={search}
@@ -343,7 +343,7 @@ export default function IncidentsPage() {
       </div>
 
       {selectedIds.size > 0 && (
-        <div className="mt-3 flex items-center gap-3 rounded-lg border border-border bg-surface-container-low px-4 py-2">
+        <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface-container-low px-3 py-2 md:px-4 md:gap-3">
           <span className="text-xs text-on-surface-variant">{selectedIds.size} selected</span>
           <Button variant="secondary" size="sm" onClick={bulkResolve}>
             <Check className="h-3.5 w-3.5" />
