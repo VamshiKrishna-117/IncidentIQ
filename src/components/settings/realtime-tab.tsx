@@ -35,13 +35,13 @@ export function RealtimeTab() {
       {features.map((f) => {
         const Icon = f.icon;
         return (
-          <div key={f.title} className="flex items-start gap-3 rounded-lg border border-border/50 px-4 py-3 opacity-70">
-            <div className="mt-0.5 rounded-lg bg-primary/10 p-2">
+          <div key={f.title} className="flex items-start gap-3 rounded-lg border border-border/50 px-3 sm:px-4 py-3 opacity-70">
+            <div className="mt-0.5 rounded-lg bg-primary/10 p-2 shrink-0">
               <Icon className="h-4 w-4 text-primary" />
             </div>
-            <div className="flex-1">
+            <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-on-surface">{f.title}</p>
-              <p className="text-xs text-on-surface-variant mt-0.5">{f.desc}</p>
+              <p className="break-words text-xs text-on-surface-variant mt-0.5">{f.desc}</p>
             </div>
             <ArrowRight className="mt-1 h-4 w-4 text-on-surface-variant shrink-0" />
           </div>

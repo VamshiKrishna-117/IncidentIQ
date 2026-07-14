@@ -46,7 +46,7 @@ export default function SettingsPage() {
   return (
     <div className="p-4 md:p-6">
       <div className="mb-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className="text-lg font-semibold text-on-surface">System Settings</h1>
             <p className="text-sm text-on-surface-variant">
@@ -68,7 +68,7 @@ export default function SettingsPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors ${
+               className={`flex items-center gap-1.5 sm:gap-2 rounded-md px-2.5 sm:px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors max-sm:min-h-[44px] ${
                 activeTab === tab.id
                   ? "bg-primary text-on-primary shadow-sm"
                   : "text-on-surface-variant hover:text-on-surface"
