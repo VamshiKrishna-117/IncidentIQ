@@ -1,5 +1,6 @@
 import type { Incident, IncidentUpdate, Priority } from "@/types";
 import type { AISummary, AIAction, AIPriorityReview } from "./ai";
+import { stripImageMarkdown } from "./utils";
 
 const criticalKeywords = ["down", "outage", "crash", "503", "502", "500", "latency", "timeout", "data loss", "security"];
 const highKeywords = ["degraded", "slow", "error rate", "partial", "warning"];
@@ -11,10 +12,6 @@ function getSeverityLevel(incident: Incident): number {
   if (highKeywords.some((k) => text.includes(k))) return 2;
   if (mediumKeywords.some((k) => text.includes(k))) return 1;
   return 0;
-}
-
-function stripImageMarkdown(text: string): string {
-  return text.replace(/!\[.*?\]\((.*?)\)/g, "[image]");
 }
 
 export function generateFallbackSummary(incident: Incident, updates: IncidentUpdate[]): AISummary {

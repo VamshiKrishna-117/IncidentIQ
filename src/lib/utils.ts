@@ -37,3 +37,7 @@ export function formatTime(date: string | Date): string {
     hour12: false,
   });
 }
+
+export function stripImageMarkdown(text: string): string {
+  return text.replace(/!\[.*?\]\((.*?)\)/g, "[image]");
+}

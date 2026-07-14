@@ -3,7 +3,7 @@
 import { Brain, Shield, AlertTriangle, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { formatTimestamp } from "@/lib/utils";
+import { formatTimestamp, stripImageMarkdown } from "@/lib/utils";
 import type { AIResult, Incident } from "@/types";
 
 interface AIAnalysisCardProps {
@@ -48,10 +48,10 @@ export function AIAnalysisCard({ incident, result, onGenerate, generating }: AIA
 
         {summary?.root_cause ? (
           <p className="mb-3 break-words text-xs text-on-surface-variant leading-relaxed">
-            {summary.root_cause}
+            {stripImageMarkdown(summary.root_cause)}
           </p>
         ) : result ? (
-          <p className="mb-3 break-words text-xs text-on-surface-variant">{result.result_text}</p>
+          <p className="mb-3 break-words text-xs text-on-surface-variant">{stripImageMarkdown(result.result_text)}</p>
         ) : (
           <p className="mb-3 text-xs text-on-surface-variant italic">
             No AI analysis yet. Click "Analyze" to generate.
@@ -62,7 +62,7 @@ export function AIAnalysisCard({ incident, result, onGenerate, generating }: AIA
           <div className="mb-2 flex items-start gap-2 rounded-lg bg-green-500/5 p-2">
             <TerminalSmall className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-400" />
             <p className="min-w-0 break-words text-xs text-green-300 leading-relaxed">
-              {summary.recommended_action}
+              {stripImageMarkdown(summary.recommended_action)}
             </p>
           </div>
         )}

@@ -1,6 +1,7 @@
 import Groq from "groq-sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { generateFallbackSummary, generateFallbackActions, generateFallbackPriority } from "./ai-fallback";
+import { stripImageMarkdown } from "./utils";
 import type { Incident, IncidentUpdate } from "@/types";
 
 const groqApiKey = process.env.GROQ_API_KEY;
@@ -8,10 +9,6 @@ const groq = groqApiKey ? new Groq({ apiKey: groqApiKey }) : null;
 
 const geminiApiKey = process.env.GEMINI_API_KEY;
 const gemini = geminiApiKey ? new GoogleGenerativeAI(geminiApiKey) : null;
-
-function stripImageMarkdown(text: string): string {
-  return text.replace(/!\[.*?\]\((.*?)\)/g, "[image]");
-}
 
 function buildPrompt(incident: Incident, updates: IncidentUpdate[], type: string): string {
   const updateLog = updates

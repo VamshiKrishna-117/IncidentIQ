@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { stripImageMarkdown } from "@/lib/utils";
 import type { Incident, IncidentUpdate, AIResult } from "@/types";
 
 const supabase = createClient();
@@ -78,7 +79,7 @@ export function AISummaryPanel({ incident, existingResults, updates }: AISummary
           <div className="space-y-4">
             <div>
               <p className="mb-1 text-xs font-medium text-on-surface-variant">Root Cause Analysis</p>
-              <p className="break-words text-sm text-on-surface">{summary.root_cause}</p>
+              <p className="break-words text-sm text-on-surface">{stripImageMarkdown(summary.root_cause)}</p>
             </div>
 
             {summary.confidence && (
@@ -94,7 +95,7 @@ export function AISummaryPanel({ incident, existingResults, updates }: AISummary
                 <AlertTriangle className="mt-0.5 h-4 w-4 text-yellow-400 shrink-0" />
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-on-surface-variant">Blast Radius</p>
-                  <p className="break-words text-sm text-on-surface">{summary.blast_radius}</p>
+                  <p className="break-words text-sm text-on-surface">{stripImageMarkdown(summary.blast_radius)}</p>
                 </div>
               </div>
             )}
@@ -105,7 +106,7 @@ export function AISummaryPanel({ incident, existingResults, updates }: AISummary
                   <TerminalIcon className="h-4 w-4 text-green-400 shrink-0" />
                   <span className="break-words text-xs font-medium text-green-400">Recommended Action</span>
                 </div>
-                <p className="mt-1 break-words text-sm text-green-300">{summary.recommended_action}</p>
+                <p className="mt-1 break-words text-sm text-green-300">{stripImageMarkdown(summary.recommended_action)}</p>
               </div>
             )}
 
@@ -117,8 +118,8 @@ export function AISummaryPanel({ incident, existingResults, updates }: AISummary
                     <div key={i} className="flex items-start gap-2 rounded-lg bg-surface-container-higher p-2.5">
                       <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-on-surface-variant" />
                       <div className="min-w-0 flex-1">
-                        <p className="break-words text-sm font-medium text-on-surface">{action.title}</p>
-                        <p className="break-words text-xs text-on-surface-variant">{action.description}</p>
+                        <p className="break-words text-sm font-medium text-on-surface">{stripImageMarkdown(action.title)}</p>
+                        <p className="break-words text-xs text-on-surface-variant">{stripImageMarkdown(action.description)}</p>
                       </div>
                       <Badge variant={action.impact === "HIGH" ? "P0" : action.impact === "MEDIUM" ? "P2" : "P3"}>
                         {action.impact}
@@ -139,9 +140,9 @@ export function AISummaryPanel({ incident, existingResults, updates }: AISummary
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-on-surface-variant">Priority Recommendation</p>
                   <p className="break-words text-sm font-semibold text-on-surface">
-                    {summary.priority_review.recommendation.replace(/_/g, " ")}
+                    {stripImageMarkdown(summary.priority_review.recommendation.replace(/_/g, " "))}
                   </p>
-                  <p className="break-words text-xs text-on-surface-variant">{summary.priority_review.reason}</p>
+                  <p className="break-words text-xs text-on-surface-variant">{stripImageMarkdown(summary.priority_review.reason)}</p>
                 </div>
               </div>
             )}
