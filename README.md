@@ -1,5 +1,7 @@
 # IncidentIQ — AI Incident Command Center
 
+**Live:** [incident-iq-xi.vercel.app](https://incident-iq-xi.vercel.app)
+
 A real-time incident management platform powered by AI, built with Next.js 16 and Supabase. Designed for SRE and DevOps teams to triage, analyze, and resolve production incidents from a single dashboard.
 
 ## Tech Stack
