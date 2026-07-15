@@ -22,7 +22,7 @@ const SUPPORT_CARDS = [
 ];
 
 export default function SupportPage() {
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
     <div className="p-4 md:p-6">
