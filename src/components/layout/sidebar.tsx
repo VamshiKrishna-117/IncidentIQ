@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -10,7 +11,6 @@ import {
   BarChart3,
   Settings,
   LifeBuoy,
-  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/ui-store";
@@ -73,10 +73,8 @@ export function Sidebar({ open }: SidebarProps) {
           open ? "w-60 translate-x-0" : "w-0 -translate-x-full lg:w-16 lg:translate-x-0"
         )}
       >
-        <div className="flex h-14 items-center gap-3 border-b border-border px-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <Shield className="h-5 w-5 text-on-primary" />
-          </div>
+        <div className="flex h-14 items-center gap-2 border-b border-border px-4">
+          <Image src="/IncidentIQ-Premium-Icon.svg" alt="IncidentIQ" width={32} height={32} className="h-8 w-8 shrink-0" />
           <span
             className={cn(
               "text-sm font-semibold text-on-surface transition-opacity whitespace-nowrap",
