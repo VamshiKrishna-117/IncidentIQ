@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { UserPlus, Link2, CheckCircle, User, ExternalLink, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { UserPlus, Link2, CheckCircle, User, ExternalLink, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/incidents/status-badge";
 import { PriorityBadge } from "@/components/incidents/priority-badge";
 import { ConfirmModal } from "@/components/shared/confirm-modal";
 import type { Incident, Status } from "@/types";
 import { STATUS_LABELS } from "@/types";
-import { useUpdateIncident, useCreateUpdate } from "@/hooks/use-incidents";
+import { useUpdateIncident, useCreateUpdate, useDeleteIncident } from "@/hooks/use-incidents";
 import { useToast } from "@/hooks/use-toast";
 
 interface IncidentHeaderProps {
@@ -21,9 +22,12 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
   const [assigneeInput, setAssigneeInput] = useState(incident.assignee ?? "");
   const [showLinkPR, setShowLinkPR] = useState(false);
   const [prUrl, setPrUrl] = useState("");
+  const [showDelete, setShowDelete] = useState(false);
   const assigneeRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
   const updateIncident = useUpdateIncident();
   const createUpdate = useCreateUpdate(incident.id);
+  const deleteIncident = useDeleteIncident();
   const toast = useToast();
 
   useEffect(() => {
@@ -117,6 +121,10 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
               <span className="hidden sm:inline">Resolve</span>
             </Button>
           )}
+          <Button variant="danger" size="sm" onClick={() => setShowDelete(true)}>
+            <Trash2 className="h-4 w-4" />
+            <span className="hidden sm:inline">Delete</span>
+          </Button>
         </div>
       </div>
 
@@ -155,6 +163,21 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
           );
         }}
         loading={updateIncident.isPending}
+      />
+
+      <ConfirmModal
+        open={showDelete}
+        onOpenChange={setShowDelete}
+        title={`Delete ${incident.display_id}`}
+        description="Are you sure you want to permanently delete this incident? This action cannot be undone and will remove all associated updates and AI results."
+        confirmLabel="Delete Incident"
+        variant="danger"
+        onConfirm={() => {
+          deleteIncident.mutate(incident.id, {
+            onSuccess: () => router.push("/dashboard"),
+          });
+        }}
+        loading={deleteIncident.isPending}
       />
     </>
   );

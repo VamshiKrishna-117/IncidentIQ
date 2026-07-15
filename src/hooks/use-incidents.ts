@@ -120,6 +120,29 @@ export function useUpdateIncident() {
   });
 }
 
+export function useDeleteIncident() {
+  const queryClient = useQueryClient();
+  const toast = useToast();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await getClient()
+        .from("incidents")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["incidents"] });
+      toast.success("Incident deleted");
+    },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : "Failed to delete incident");
+    },
+  });
+}
+
 export function useDeleteUpdate(incidentId: string) {
   const queryClient = useQueryClient();
   const toast = useToast();
