@@ -20,7 +20,7 @@ export function MobileNav() {
   const { setCreateIncidentOpen, setSidebarOpen } = useUIStore();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t border-border bg-surface/90 backdrop-blur-xl lg:hidden safe-area-bottom" role="navigation" aria-label="Mobile navigation">
+    <nav className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-around border-t border-border bg-surface/90 backdrop-blur-xl lg:hidden safe-area-bottom overflow-x-auto gap-0.5" role="navigation" aria-label="Mobile navigation">
       {mobileItems.map((item) => {
         const isActive = pathname === item.href;
         return (
@@ -30,7 +30,7 @@ export function MobileNav() {
             onClick={() => setSidebarOpen(false)}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "flex flex-col items-center gap-0.5 py-2 px-2 text-[10px] font-medium transition-colors min-w-0",
+              "flex flex-col items-center gap-0.5 py-2 px-2 text-[10px] font-medium transition-colors min-w-0 shrink-0",
               isActive
                 ? "text-primary"
                 : "text-on-surface-variant hover:text-on-surface"
@@ -44,7 +44,7 @@ export function MobileNav() {
       <button
         onClick={() => setCreateIncidentOpen(true)}
         aria-label="Create new incident"
-        className="flex flex-col items-center gap-0.5 py-2 px-2 text-[10px] font-medium text-on-surface-variant hover:text-on-surface transition-colors"
+        className="flex flex-col items-center gap-0.5 py-2 px-2 text-[10px] font-medium text-on-surface-variant hover:text-on-surface transition-colors shrink-0"
       >
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary mb-0.5">
           <span className="text-sm font-bold text-on-primary" aria-hidden="true">+</span>
