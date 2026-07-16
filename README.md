@@ -59,6 +59,10 @@ A real-time incident management platform powered by AI, built with Next.js 16 an
 - **Analytics** — incident volume trends, priority distribution (donut chart), resolution status (stacked bar), MTTR tracking, time range filtering (24h/7d/30d)
 - **Settings** — theme (dark-only with light/system coming-soon), AI provider config, auto-refresh interval, notification toggle, system info (version + git hash), database/realtime health checks
 - **Responsive** — full mobile support with auto-hiding sidebar, bottom navigation bar, touch-optimized targets, adaptive layouts
+- **Authentication** — Supabase Auth with email/password signup and login; public demo browsing without sign-in; user isolation via RLS
+- **Demo Mode** — pre-seeded demo incidents visible to all visitors with a gold "Demo" badge; read-only for non-owners; full CRUD for the app owner via `admin_users` table
+- **User Menu** — sign-in icon in header when unauthenticated; email avatar + sign-out dropdown when authenticated
+- **Auth Modal** — glassmorphism modal with Shield icon when unauthenticated users attempt mutations (create, edit, delete, AI)
 
 ### AI Provider Selection
 
@@ -83,6 +87,7 @@ The Supabase project (`uqsrvnrgfkcadidsitdw.supabase.co`) uses the following mig
 | `services` | Infrastructure service health metrics (latency, CPU, memory, error rate) |
 | `settings` | Key-value store for app configuration (theme, AI provider, etc.) |
 | `notifications` | Notification records for incident events |
+| `admin_users` | Authorized admin user IDs (can manage demo incidents) |
 
 ### Key Relationships
 
@@ -90,6 +95,8 @@ The Supabase project (`uqsrvnrgfkcadidsitdw.supabase.co`) uses the following mig
 incidents (1) ── incident_updates (many)
 incidents (1) ── ai_results (many)
 incidents (1) ── notifications (many, optional)
+auth.users (1) ── incidents (many) via user_id
+auth.users (1) ── admin_users (1) via user_id
 ```
 
 ### Storage Bucket
@@ -109,7 +116,11 @@ Migrations must be run manually via the Supabase Dashboard SQL editor (no Supaba
 20240705000001_core.sql
 20240705000002_notifications.sql
 20240706000001_storage.sql
+20240707000001_auth.sql       -- user_id, is_demo, admin_users, triggers
+20240707000002_rls.sql         -- Row-Level Security policies
 ```
+
+> **Note:** Auth migrations must be run with "Run without RLS" toggle in the Supabase Dashboard SQL editor, since they modify RLS policies while they are being created.
 
 ## Setup
 
@@ -176,11 +187,13 @@ Open [http://localhost:3000](http://localhost:3000).
 ```
 src/
 ├── app/                     # Next.js App Router pages
+│   ├── (auth)/              # Auth pages (login, signup)
 │   ├── ai-assistant/        # AI analysis overview page
 │   ├── analytics/           # Metrics and charts
 │   ├── api/                 # API routes
 │   │   ├── incidents/       # CRUD + AI + updates endpoints
 │   │   └── upload/          # File upload to Supabase Storage
+│   ├── auth/                # Auth server routes (callback, logout)
 │   ├── dashboard/           # Incidents table with filters
 │   ├── incidents/[id]/      # Incident detail page
 │   ├── infrastructure/      # Service mesh health
@@ -199,7 +212,7 @@ src/
 │   └── ui/                  # Button, card, badge, select, skeleton, etc.
 ├── hooks/                   # Custom hooks (incidents, settings, toast, system health)
 ├── lib/                     # Utilities, AI client, Supabase clients, CSV export
-├── stores/                  # Zustand UI store
+├── stores/                  # Zustand stores (UI, auth)
 └── types/                   # TypeScript type definitions
 ```
 
@@ -210,7 +223,12 @@ src/
 - **Notifications silently degrade**: If the `notifications` table doesn't exist, inserts fail silently via `.catch(() => {})`
 - **File uploads are server-side**: Files go through `/api/upload` using `SUPABASE_SERVICE_ROLE_KEY`, not direct client-side uploads
 - **Mobile responsive**: Sidebar auto-hides below 1024px with hamburger toggle; bottom nav bar on mobile; all components adapted with proper touch targets (`max-sm:min-h-[44px]`)
-- **Milestone commits**: `978e71d` marks the web-only baseline; `a9e9fba` marks completion of mobile responsive work
+- **Auth via Supabase SSR**: Authentication uses `@supabase/ssr` with a `proxy.ts` (Next.js 16 middleware replacement) for session refresh only — no redirect middleware. RLS handles all access control at the database level.
+- **Anon client for API routes**: Server-side Supabase client uses `NEXT_PUBLIC_SUPABASE_ANON_KEY` so API routes respect RLS and `auth.uid()` resolves correctly. Service role key is only retained for Storage operations in `/api/upload`.
+- **Auth modal over redirect**: Instead of redirecting to login, unauthenticated mutation attempts show a glassmorphism auth modal with Sign In / Create Account / Continue Exploring options. The `?redirect=` param returns the user to their exact page after login.
+- **Demo data architecture**: Pre-seeded incidents are marked `is_demo = true`. RLS allows public SELECT on demo rows. Mutations on demo rows require admin privileges (`admin_users` table). A `set_user_id()` trigger auto-assigns `auth.uid()` on INSERT to prevent impersonation.
+- **Admin model**: The `admin_users` table (UUID PK → `auth.users`) is scalable (no email hardcoding). First admin must be added manually via Supabase Dashboard SQL editor (bypasses RLS).
+- **Milestone commits**: `9560d0e` marks the pre-auth baseline; `0d6567a` adds DB migrations + RLS; `4c7abf1` adds auth infrastructure; `44f8592` adds API auth checks; `aa6b505` completes frontend auth.
 
 ## Deployment
 
