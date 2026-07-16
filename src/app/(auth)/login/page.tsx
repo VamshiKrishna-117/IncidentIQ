@@ -1,14 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Shield, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-[#050505] p-4"><p className="text-sm text-on-surface-variant">Loading...</p></div>}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") ?? "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -27,12 +37,16 @@ export default function LoginPage() {
     });
 
     if (authError) {
-      setError(authError.message);
+      if (authError.message?.toLowerCase().includes("email not confirmed")) {
+        setError("Email not yet confirmed. Check your inbox (and spam) for the confirmation link.");
+      } else {
+        setError(authError.message);
+      }
       setLoading(false);
       return;
     }
 
-    router.push("/");
+    router.push(redirect);
     router.refresh();
   };
 
@@ -85,7 +99,7 @@ export default function LoginPage() {
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface cursor-pointer"
                 tabIndex={-1}
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               </button>
             </div>
           </div>

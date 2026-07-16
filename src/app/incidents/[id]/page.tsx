@@ -118,7 +118,7 @@ export default function IncidentDetailPage() {
               <CardTitle>Post Update</CardTitle>
             </CardHeader>
             <CardContent>
-              <UpdateComposer incidentId={id} />
+              <UpdateComposer incidentId={id} isDemo={incident.is_demo} />
             </CardContent>
           </Card>
         </div>

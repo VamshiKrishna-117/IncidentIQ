@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/incidents/status-badge";
 import { PriorityBadge } from "@/components/incidents/priority-badge";
 import { ConfirmModal } from "@/components/shared/confirm-modal";
+import { Badge } from "@/components/ui/badge";
+import { useAuthStore } from "@/stores/auth-store";
 import type { Incident, Status } from "@/types";
 import { STATUS_LABELS } from "@/types";
 import { useUpdateIncident, useCreateUpdate, useDeleteIncident } from "@/hooks/use-incidents";
@@ -25,6 +27,9 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
   const [showDelete, setShowDelete] = useState(false);
   const assigneeRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const { user, openAuthModal } = useAuthStore();
+  const isDemo = incident.is_demo;
+  const isReadOnly = isDemo || !user;
   const updateIncident = useUpdateIncident();
   const createUpdate = useCreateUpdate(incident.id);
   const deleteIncident = useDeleteIncident();
@@ -74,6 +79,16 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
             <div className="flex items-center gap-2">
               <StatusBadge status={incident.status} />
               <PriorityBadge priority={incident.priority} />
+              {isDemo && (
+                <Badge variant="default" className="bg-amber-500/10 text-amber-400 text-[10px] px-1.5 py-0">
+                  Demo
+                </Badge>
+              )}
+              {!user && !isDemo && (
+                <Badge variant="default" className="bg-blue-500/10 text-blue-400 text-[10px] px-1.5 py-0">
+                  Read Only
+                </Badge>
+              )}
             </div>
           </div>
 
@@ -94,8 +109,8 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
                   placeholder="Unassigned"
                 />
               </span>
-            ) : (
-              <button onClick={() => setEditingAssignee(true)} className="flex items-center gap-1 hover:text-on-surface transition-colors cursor-pointer">
+              ) : (
+              <button onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } setEditingAssignee(true); }} className="flex items-center gap-1 hover:text-on-surface transition-colors cursor-pointer disabled:opacity-50">
                 <User className="h-3 w-3" />
                 {incident.assignee || "Unassigned"}
               </button>
@@ -104,28 +119,28 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
         </div>
 
         <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-2">
-          <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={() => setEditingAssignee(true)}>
+          <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } setEditingAssignee(true); }} disabled={isDemo}>
             <UserPlus className="h-4 w-4" />
             <span>Assign</span>
           </Button>
-          <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={() => setShowLinkPR(true)}>
+          <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } setShowLinkPR(true); }} disabled={isDemo}>
             <Link2 className="h-4 w-4" />
             <span>Link PR</span>
           </Button>
           {nextStatus && nextStatus !== "RESOLVED" && (
-            <Button variant="primary" size="sm" className="w-full sm:w-auto" onClick={handleAdvanceStatus} loading={updateIncident.isPending}>
+            <Button variant="primary" size="sm" className="w-full sm:w-auto" onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } handleAdvanceStatus(); }} loading={updateIncident.isPending} disabled={isDemo}>
               <CheckCircle className="h-4 w-4" />
               <span className="hidden sm:inline">Mark </span>
               {STATUS_LABELS[nextStatus]}
             </Button>
           )}
           {incident.status !== "RESOLVED" && (
-            <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={() => setShowResolve(true)}>
+            <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } setShowResolve(true); }} disabled={isDemo}>
               <CheckCircle className="h-4 w-4 text-green-400" />
               <span>Resolve</span>
             </Button>
           )}
-          <Button variant="danger" size="sm" className="w-full sm:w-auto" onClick={() => setShowDelete(true)}>
+          <Button variant="danger" size="sm" className="w-full sm:w-auto" onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } setShowDelete(true); }} disabled={isDemo}>
             <Trash2 className="h-4 w-4" />
             <span>Delete</span>
           </Button>

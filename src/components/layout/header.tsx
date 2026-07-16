@@ -1,18 +1,48 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Menu, Bell, HelpCircle, Plus, Search, X, Circle } from "lucide-react";
+import { Menu, Bell, HelpCircle, Plus, Search, X, Circle, LogOut, User, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUIStore } from "@/stores/ui-store";
+import { useAuthStore } from "@/stores/auth-store";
 import { usePathname, useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useNotifications, useUnreadCount, useMarkNotificationRead, useMarkAllRead } from "@/hooks/use-notifications";
+import { createClient } from "@/lib/supabase/client";
 import { formatTimestamp } from "@/lib/utils";
 
 export function Header() {
   const { toggleSidebar, setCreateIncidentOpen, globalSearch, setGlobalSearch } = useUIStore();
+  const { user, openAuthModal } = useAuthStore();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const toast = useToast();
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleCreateIncident = () => {
+    if (!user) {
+      openAuthModal();
+      return;
+    }
+    setCreateIncidentOpen(true);
+  };
+
+  const handleSignOut = async () => {
+    setShowUserMenu(false);
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  };
   const pathname = usePathname();
   const [localSearch, setLocalSearch] = useState(globalSearch);
   const isFirstRender = useRef(true);
@@ -168,7 +198,7 @@ export function Header() {
         <Button
           variant="primary"
           size="sm"
-          onClick={() => setCreateIncidentOpen(true)}
+          onClick={handleCreateIncident}
           aria-label="Create new incident"
           className="h-9 px-2 md:px-3"
         >
@@ -221,6 +251,31 @@ export function Header() {
                   ))
                 )}
               </div>
+            </div>
+          )}
+        </div>
+
+        <div ref={userMenuRef} className="relative">
+          {user ? (
+            <button onClick={() => setShowUserMenu((prev) => !prev)} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors cursor-pointer" aria-label="User menu">
+              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20">
+                <User className="h-3.5 w-3.5 text-primary" />
+              </div>
+            </button>
+          ) : (
+            <button onClick={() => openAuthModal()} className="rounded-lg p-1.5 text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-colors cursor-pointer" aria-label="Sign in">
+              <Shield className="h-5 w-5" />
+            </button>
+          )}
+          {showUserMenu && user && (
+            <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-border bg-surface shadow-xl z-50">
+              <div className="px-3 py-2 border-b border-border">
+                <p className="text-xs font-medium text-on-surface truncate">{user.email}</p>
+              </div>
+              <button onClick={handleSignOut} className="flex w-full items-center gap-2 px-3 py-2.5 text-xs text-on-surface-variant hover:bg-white/[0.02] transition-colors cursor-pointer">
+                <LogOut className="h-3.5 w-3.5" />
+                Sign Out
+              </button>
             </div>
           )}
         </div>

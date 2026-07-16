@@ -14,6 +14,8 @@ export interface Incident {
   assignee: string | null;
   service_affected: string | null;
   latest_update: string | null;
+  user_id: string | null;
+  is_demo: boolean;
   created_at: string;
   updated_at: string;
 }

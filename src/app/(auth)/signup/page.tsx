@@ -14,6 +14,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +22,7 @@ export default function SignupPage() {
     setLoading(true);
 
     const supabase = createClient();
-    const { error: authError } = await supabase.auth.signUp({
+    const { data, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -35,8 +36,13 @@ export default function SignupPage() {
       return;
     }
 
-    router.push("/?welcome=true");
-    router.refresh();
+    if (data.session) {
+      router.push("/");
+      router.refresh();
+    } else {
+      setSuccess(true);
+      setLoading(false);
+    }
   };
 
   return (
@@ -54,6 +60,22 @@ export default function SignupPage() {
           </p>
         </div>
 
+        {success ? (
+          <div className="text-center py-6 space-y-3">
+            <div className="flex justify-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                <Shield className="h-6 w-6 text-primary" />
+              </div>
+            </div>
+            <h2 className="text-base font-semibold text-on-surface">Check your email</h2>
+            <p className="text-sm text-on-surface-variant">
+              We sent a confirmation link to <strong className="text-on-surface">{email}</strong>. Click it to activate your account.
+            </p>
+            <Link href="/login" className="inline-block mt-2 text-sm text-primary hover:text-primary/80 transition-colors">
+              Go to sign in
+            </Link>
+          </div>
+        ) : (
         <form onSubmit={handleSignup} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-xs font-medium text-on-surface-variant mb-1.5">
@@ -91,7 +113,7 @@ export default function SignupPage() {
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface cursor-pointer"
                 tabIndex={-1}
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               </button>
             </div>
           </div>
@@ -106,7 +128,10 @@ export default function SignupPage() {
             Create Account
           </Button>
         </form>
+        )}
 
+        {!success && (
+        <>
         <p className="mt-6 text-center text-xs text-on-surface-variant">
           Already have an account?{" "}
           <Link href="/login" className="text-primary hover:text-primary/80 transition-colors">
@@ -119,6 +144,8 @@ export default function SignupPage() {
             Continue as guest
           </Link>
         </div>
+        </>
+        )}
       </div>
     </div>
   );

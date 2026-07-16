@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuthStore } from "@/stores/auth-store";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { stripImageMarkdown } from "@/lib/utils";
@@ -36,12 +37,17 @@ export function AISummaryPanel({ incident, existingResults, updates }: AISummary
     if (existing?.metadata) return existing.metadata as unknown as SummaryData;
     return null;
   });
+  const { openAuthModal } = useAuthStore();
   const toast = useToast();
 
   const handleGenerate = async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/incidents/${incident.id}/ai`, { method: "POST" });
+      if (res.status === 401) {
+        openAuthModal();
+        return;
+      }
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
       setSummary(json.data);

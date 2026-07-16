@@ -5,6 +5,7 @@ import { Terminal, Image, Paperclip, AtSign, Send, X, Upload, Link as LinkIcon, 
 import { Button } from "@/components/ui/button";
 import { useCreateUpdate } from "@/hooks/use-incidents";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthStore } from "@/stores/auth-store";
 import { createClient } from "@/lib/supabase/client";
 
 const supabase = createClient();
@@ -26,9 +27,12 @@ type FileTab = "upload" | "link";
 
 interface UpdateComposerProps {
   incidentId: string;
+  isDemo?: boolean;
 }
 
-export function UpdateComposer({ incidentId }: UpdateComposerProps) {
+export function UpdateComposer({ incidentId, isDemo = false }: UpdateComposerProps) {
+  const { user, openAuthModal } = useAuthStore();
+  const isReadOnly = isDemo || !user;
   const [message, setMessage] = useState("");
   const [authorName, setAuthorName] = useState(getStoredName);
   const [showNamePrompt, setShowNamePrompt] = useState(authorName === "You");
@@ -72,6 +76,7 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
 
   const handleSubmit = () => {
     if (!message.trim()) return;
+    if (!user) { openAuthModal(); return; }
     createUpdate.mutate(
       { message: message.trim(), author_name: authorName },
       { onSuccess: () => setMessage(""), onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to post update") }
@@ -202,6 +207,12 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
 
   return (
     <div className="rounded-lg border border-border bg-surface-container-low">
+      {isReadOnly ? (
+        <div className="flex items-center justify-center px-3 py-6">
+          <p className="text-xs text-on-surface-variant">{isDemo ? "Demo incidents are read-only" : "Sign in to post updates"}</p>
+        </div>
+      ) : (
+      <>
       <div className="flex items-center gap-1 border-b border-border px-2.5 sm:px-3 py-1.5 overflow-x-auto">
         <button onClick={() => setActivePanel(activePanel === "code" ? null : "code")} className={`rounded p-1 transition-colors cursor-pointer ${activePanel === "code" ? "bg-primary/20 text-primary" : "text-on-surface-variant hover:bg-white/5 hover:text-on-surface"}`} title="Insert code block">
           <Terminal className="h-4 w-4" />
@@ -387,6 +398,8 @@ export function UpdateComposer({ incidentId }: UpdateComposerProps) {
           Post
         </Button>
       </div>
+      </>
+      )}
     </div>
   );
 }

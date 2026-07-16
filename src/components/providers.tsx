@@ -7,6 +7,8 @@ import { AppShell } from "@/components/layout/app-shell";
 import { CreateIncidentModal } from "@/components/incidents/create-incident-modal";
 import { ThemeProvider } from "@/components/theme-provider";
 import { RealtimeProvider } from "@/components/realtime-provider";
+import { AuthProvider } from "@/components/auth-provider";
+import { AuthModal } from "@/components/shared/auth-modal";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -25,13 +27,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
-        <RealtimeProvider>
-          <AppShell>
-            {children}
-            <CreateIncidentModal />
-          </AppShell>
-          <ToastContainer />
-        </RealtimeProvider>
+        <AuthProvider>
+          <RealtimeProvider>
+            <AppShell>
+              {children}
+              <CreateIncidentModal />
+            </AppShell>
+            <AuthModal />
+            <ToastContainer />
+          </RealtimeProvider>
+        </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );
