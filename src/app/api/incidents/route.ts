@@ -25,6 +25,15 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: "Authentication required", code: "UNAUTHORIZED" },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const parsed = createIncidentSchema.safeParse(body);
 
@@ -34,8 +43,6 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-
-    const supabase = await createClient();
 
     const { data: seqResult } = await supabase.rpc("generate_display_id");
     const displayId = seqResult ?? "INC-0001";

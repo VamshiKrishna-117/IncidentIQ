@@ -33,6 +33,15 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: "Authentication required", code: "UNAUTHORIZED" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     const body = await request.json();
     const parsed = createUpdateSchema.safeParse(body);
@@ -44,7 +53,6 @@ export async function POST(
       );
     }
 
-    const supabase = await createClient();
     const { data, error } = await supabase
       .from("incident_updates")
       .insert({

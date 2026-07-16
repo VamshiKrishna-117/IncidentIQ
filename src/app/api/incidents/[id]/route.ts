@@ -33,6 +33,15 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: "Authentication required", code: "UNAUTHORIZED" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     const body = await request.json();
     const parsed = updateIncidentSchema.safeParse(body);
@@ -44,7 +53,6 @@ export async function PATCH(
       );
     }
 
-    const supabase = await createClient();
     const { data, error } = await supabase
       .from("incidents")
       .update(parsed.data)
@@ -70,8 +78,16 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: "Authentication required", code: "UNAUTHORIZED" },
+        { status: 401 }
+      );
+    }
+
+    const { id } = await params;
     const { error } = await supabase
       .from("incidents")
       .delete()
