@@ -31,8 +31,9 @@ interface UpdateComposerProps {
 }
 
 export function UpdateComposer({ incidentId, isDemo = false }: UpdateComposerProps) {
-  const { user, openAuthModal } = useAuthStore();
-  const isReadOnly = isDemo || !user;
+  const { user, isAdmin, openAuthModal } = useAuthStore();
+  const canEditDemo = isDemo && isAdmin;
+  const isReadOnly = (isDemo && !isAdmin) || !user;
   const [message, setMessage] = useState("");
   const [authorName, setAuthorName] = useState(getStoredName);
   const [showNamePrompt, setShowNamePrompt] = useState(authorName === "You");

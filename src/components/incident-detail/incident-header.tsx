@@ -27,9 +27,10 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
   const [showDelete, setShowDelete] = useState(false);
   const assigneeRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const { user, openAuthModal } = useAuthStore();
+  const { user, isAdmin, openAuthModal } = useAuthStore();
   const isDemo = incident.is_demo;
-  const isReadOnly = isDemo || !user;
+  const canEditDemo = isDemo && isAdmin;
+  const isReadOnly = (isDemo && !isAdmin) || !user;
   const updateIncident = useUpdateIncident();
   const createUpdate = useCreateUpdate(incident.id);
   const deleteIncident = useDeleteIncident();
@@ -119,28 +120,28 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
         </div>
 
         <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-2">
-          <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } setEditingAssignee(true); }} disabled={isDemo}>
+          <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } setEditingAssignee(true); }} disabled={isReadOnly}>
             <UserPlus className="h-4 w-4" />
             <span>Assign</span>
           </Button>
-          <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } setShowLinkPR(true); }} disabled={isDemo}>
+          <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } setShowLinkPR(true); }} disabled={isReadOnly}>
             <Link2 className="h-4 w-4" />
             <span>Link PR</span>
           </Button>
           {nextStatus && nextStatus !== "RESOLVED" && (
-            <Button variant="primary" size="sm" className="w-full sm:w-auto" onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } handleAdvanceStatus(); }} loading={updateIncident.isPending} disabled={isDemo}>
+            <Button variant="primary" size="sm" className="w-full sm:w-auto" onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } handleAdvanceStatus(); }} loading={updateIncident.isPending} disabled={isReadOnly}>
               <CheckCircle className="h-4 w-4" />
               <span className="hidden sm:inline">Mark </span>
               {STATUS_LABELS[nextStatus]}
             </Button>
           )}
           {incident.status !== "RESOLVED" && (
-            <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } setShowResolve(true); }} disabled={isDemo}>
+            <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } setShowResolve(true); }} disabled={isReadOnly}>
               <CheckCircle className="h-4 w-4 text-green-400" />
               <span>Resolve</span>
             </Button>
           )}
-          <Button variant="danger" size="sm" className="w-full sm:w-auto" onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } setShowDelete(true); }} disabled={isDemo}>
+          <Button variant="danger" size="sm" className="w-full sm:w-auto" onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } setShowDelete(true); }} disabled={isReadOnly}>
             <Trash2 className="h-4 w-4" />
             <span>Delete</span>
           </Button>
