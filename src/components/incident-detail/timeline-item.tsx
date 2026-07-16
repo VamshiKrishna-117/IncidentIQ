@@ -124,7 +124,7 @@ export function TimelineItem({ message, authorName, timestamp, type, isFirst, is
   const config = typeConfig[type] ?? typeConfig.USER;
 
   return (
-    <div className="relative flex gap-4 pb-6 group">
+    <div className="relative flex gap-3 sm:gap-4 pb-4 sm:pb-6 group">
       <div className="flex flex-col items-center">
         <div
           className={cn(
@@ -149,7 +149,7 @@ export function TimelineItem({ message, authorName, timestamp, type, isFirst, is
               AI Analysis
             </span>
           )}
-          <span className="ml-auto text-xs text-on-surface-variant">
+          <span className="ml-auto text-[10px] sm:text-xs text-on-surface-variant">
             {formatTime(timestamp)}
           </span>
           {onDelete && (

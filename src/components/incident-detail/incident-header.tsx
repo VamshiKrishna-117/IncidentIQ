@@ -67,15 +67,19 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
 
   return (
     <>
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <div className="mb-1 flex items-center gap-2">
+      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+        <div className="min-w-0 flex-1 space-y-2 sm:space-y-1.5">
+          <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
             <span className="font-mono text-xs text-on-surface-variant">{incident.display_id}</span>
-            <StatusBadge status={incident.status} />
-            <PriorityBadge priority={incident.priority} />
+            <div className="flex items-center gap-2">
+              <StatusBadge status={incident.status} />
+              <PriorityBadge priority={incident.priority} />
+            </div>
           </div>
-          <h2 className="break-words text-heading-md font-semibold text-on-surface">{incident.title}</h2>
-          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-on-surface-variant">
+
+          <h2 className="text-heading-md font-semibold text-on-surface">{incident.title}</h2>
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-on-surface-variant">
             <span>Reported by <span className="text-on-surface font-medium">{incident.reporter_name}</span></span>
             {editingAssignee ? (
               <span className="flex items-center gap-1">
@@ -99,31 +103,31 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-1.5 sm:gap-2">
-          <Button variant="secondary" size="sm" onClick={() => setEditingAssignee(true)}>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-2">
+          <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={() => setEditingAssignee(true)}>
             <UserPlus className="h-4 w-4" />
-            <span className="hidden sm:inline">Assign</span>
+            <span>Assign</span>
           </Button>
-          <Button variant="secondary" size="sm" onClick={() => setShowLinkPR(true)}>
+          <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={() => setShowLinkPR(true)}>
             <Link2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Link PR</span>
+            <span>Link PR</span>
           </Button>
           {nextStatus && nextStatus !== "RESOLVED" && (
-            <Button variant="primary" size="sm" onClick={handleAdvanceStatus} loading={updateIncident.isPending}>
+            <Button variant="primary" size="sm" className="w-full sm:w-auto" onClick={handleAdvanceStatus} loading={updateIncident.isPending}>
               <CheckCircle className="h-4 w-4" />
               <span className="hidden sm:inline">Mark </span>
               {STATUS_LABELS[nextStatus]}
             </Button>
           )}
           {incident.status !== "RESOLVED" && (
-            <Button variant="secondary" size="sm" onClick={() => setShowResolve(true)}>
+            <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={() => setShowResolve(true)}>
               <CheckCircle className="h-4 w-4 text-green-400" />
-              <span className="hidden sm:inline">Resolve</span>
+              <span>Resolve</span>
             </Button>
           )}
-          <Button variant="danger" size="sm" onClick={() => setShowDelete(true)}>
+          <Button variant="danger" size="sm" className="w-full sm:w-auto" onClick={() => setShowDelete(true)}>
             <Trash2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Delete</span>
+            <span>Delete</span>
           </Button>
         </div>
       </div>
