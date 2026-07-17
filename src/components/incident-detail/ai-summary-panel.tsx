@@ -37,8 +37,10 @@ export function AISummaryPanel({ incident, existingResults, updates }: AISummary
     if (existing?.metadata) return existing.metadata as unknown as SummaryData;
     return null;
   });
-  const { openAuthModal } = useAuthStore();
+  const { user, openAuthModal, isAdmin } = useAuthStore();
   const toast = useToast();
+
+  const isDemoReadOnly = incident.is_demo && (!user || !isAdmin);
 
   const handleGenerate = async () => {
     setLoading(true);
@@ -67,7 +69,7 @@ export function AISummaryPanel({ incident, existingResults, updates }: AISummary
               <Brain className="h-4 w-4 text-green-400 shrink-0" />
               <CardTitle>AI Summary</CardTitle>
             </div>
-            <Button variant="secondary" size="sm" onClick={handleGenerate} loading={loading}>
+            <Button variant="secondary" size="sm" onClick={handleGenerate} loading={loading} disabled={isDemoReadOnly}>
               <Sparkles className="h-4 w-4" />
               {summary ? "Regenerate" : "Generate"}
             </Button>

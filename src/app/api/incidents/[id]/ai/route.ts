@@ -50,6 +50,21 @@ export async function POST(
       return NextResponse.json({ error: "Incident not found" }, { status: 404 });
     }
 
+    if (incident.is_demo) {
+      const { data: adminUser } = await supabase
+        .from("admin_users")
+        .select("id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!adminUser) {
+        return NextResponse.json(
+          { error: "Admins only: demo incidents are read-only", code: "FORBIDDEN" },
+          { status: 403 }
+        );
+      }
+    }
+
     const { data: updates } = await supabase
       .from("incident_updates")
       .select("*")
