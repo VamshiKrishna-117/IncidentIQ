@@ -17,6 +17,7 @@ import { ErrorState } from "@/components/shared/error-state";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Terminal, Shield, Activity } from "lucide-react";
+import { useAuthStore } from "@/stores/auth-store";
 import { createClient } from "@/lib/supabase/client";
 import type { AIResult } from "@/types";
 
@@ -37,10 +38,12 @@ function serviceStatusLabel(status: string) {
 export default function IncidentDetailPage() {
   const params = useParams();
   const id = params.id as string;
+  const { user, isAdmin } = useAuthStore();
   const { data: incident, isLoading, error, refetch } = useIncident(id);
   const { data: updates, isLoading: updatesLoading } = useIncidentUpdates(id);
   useRealtimeIncidentUpdates(id);
   const deleteUpdate = useDeleteUpdate(id);
+  const canDeleteUpdates = !!user && (!incident?.is_demo || isAdmin);
 
   const { data: aiResults = [] } = useQuery({
     queryKey: ["ai-results", id],
@@ -109,7 +112,7 @@ export default function IncidentDetailPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <Timeline updates={updates} loading={updatesLoading} onDeleteUpdate={(id) => deleteUpdate.mutate(id)} />
+              <Timeline updates={updates} loading={updatesLoading} canDelete={canDeleteUpdates} onDeleteUpdate={(id) => deleteUpdate.mutate(id)} />
             </CardContent>
           </Card>
 

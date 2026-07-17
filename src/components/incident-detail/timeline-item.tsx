@@ -16,6 +16,7 @@ interface TimelineItemProps {
   type: "USER" | "SYSTEM" | "AI";
   isFirst?: boolean;
   isLast?: boolean;
+  canDelete?: boolean;
   onDelete?: () => void;
 }
 
@@ -119,7 +120,7 @@ function MessageContent({ text }: { text: string }) {
   );
 }
 
-export function TimelineItem({ message, authorName, timestamp, type, isFirst, isLast, onDelete }: TimelineItemProps) {
+export function TimelineItem({ message, authorName, timestamp, type, isFirst, isLast, canDelete, onDelete }: TimelineItemProps) {
   const [deleting, setDeleting] = useState(false);
   const config = typeConfig[type] ?? typeConfig.USER;
 
@@ -152,7 +153,7 @@ export function TimelineItem({ message, authorName, timestamp, type, isFirst, is
           <span className="ml-auto text-[10px] sm:text-xs text-on-surface-variant">
             {formatTime(timestamp)}
           </span>
-          {onDelete && (
+          {canDelete && onDelete && (
             deleting ? (
               <div className="flex items-center gap-1">
                 <button onClick={() => { onDelete(); setDeleting(false); }} className="rounded px-1.5 py-0.5 text-[10px] font-medium text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer">Confirm</button>
