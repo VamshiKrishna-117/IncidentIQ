@@ -73,11 +73,11 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
 
   return (
     <>
-      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-        <div className="min-w-0 flex-1 space-y-2 sm:space-y-1.5">
+      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:gap-x-6 sm:gap-y-3">
+        <div className="min-w-0 flex-1 basis-[min(0,100%)] space-y-2 sm:space-y-1.5">
           <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
             <span className="font-mono text-xs text-on-surface-variant">{incident.display_id}</span>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <StatusBadge status={incident.status} />
               <PriorityBadge priority={incident.priority} />
               {isDemo && (
@@ -119,7 +119,7 @@ export function IncidentHeader({ incident }: IncidentHeaderProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-2 sm:basis-full">
           <Button variant="secondary" size="sm" className="w-full sm:w-auto" onClick={() => { if (isReadOnly) { if (!user) openAuthModal(); return; } setEditingAssignee(true); }} disabled={isReadOnly}>
             <UserPlus className="h-4 w-4" />
             <span>Assign</span>
